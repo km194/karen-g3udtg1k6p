@@ -1,6 +1,7 @@
 #!/bin/zsh
 # Build the public copy in docs/ (GitHub Pages serves that folder) and push it.
 set -e
+setopt null_glob
 cd "$(dirname "$0")"
 mkdir -p docs
 { echo '<!doctype html>'
@@ -10,5 +11,5 @@ mkdir -p docs
   grep -v '^<meta charset="utf-8">$' index.html
   echo '</html>'; } > docs/index.html
 cp art.js story.js engine.js docs/
-for f in *.mp3 *.jpg *.jpeg *.png; do [ -e "$f" ] && cp "$f" docs/; done 2>/dev/null || true
+for f in *.mp3 *.jpg *.jpeg *.png; do [ -e "$f" ] && cp "$f" docs/; done
 git add -A && git commit -qm "update" && git push -q && echo "pushed"
