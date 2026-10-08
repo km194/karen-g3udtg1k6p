@@ -1,0 +1,778 @@
+<title>Her First Halloween Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: first-person from inside her hallway. One 390x800 stage scaled to the phone; the doorway is a window onto the night. Single cozy-night look by choice. */
+:root {
+  --night: #1d1636;
+  --wall: #4a2f66;
+  --wall-dot: #5a3b7a;
+  --trim: #f6e7d4;
+  --ink: #2e2148;
+  --cream: #fff6ea;
+  --pink: #ff8fbd;
+  --pink-soft: #ffd3e4;
+  --glow: #ffd98a;
+  --mint: #a8ecd6;
+  --orange: #ff8a2b;
+  --display: "Mochiy Pop One", "Arial Rounded MT Bold", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  --body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Arial Rounded MT Bold", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; background: var(--night); color: var(--cream); font-family: var(--body);
+  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; touch-action: none; }
+
+#stage { position: fixed; left: 50%; top: 50%; width: 390px; height: 800px; transform-origin: 50% 50%; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,217,138,.16), rgba(255,217,138,0) 60%),
+    radial-gradient(circle, var(--wall-dot) 2px, transparent 2.5px) 0 0 / 26px 26px,
+    var(--wall); }
+.abs { position: absolute; }
+
+/* top: garland + caption */
+#garland { left: 0; top: 34px; width: 390px; }
+#mock { left: 12px; top: 10px; font: 700 10px/1 var(--body); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--pink-soft); background: rgba(0,0,0,.2); padding: 5px 9px; border-radius: 99px; z-index: 30; }
+#mute { right: 12px; top: 8px; z-index: 30; appearance: none; border: 0; background: rgba(0,0,0,.2); color: var(--pink-soft);
+  font: 700 10px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; cursor: pointer; }
+#cap { left: 20px; right: 20px; top: 104px; text-align: center; font: 700 15px/1.35 var(--body); color: var(--pink-soft);
+  text-wrap: balance; z-index: 8; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+
+/* doorway + outside */
+#frame { left: 78px; top: 158px; width: 234px; height: 490px; background: var(--trim); border-radius: 118px 118px 0 0;
+  box-shadow: 0 0 0 4px #d9c3aa inset, 0 18px 40px rgba(0,0,0,.35); }
+#outside { left: 90px; top: 170px; width: 210px; height: 478px; overflow: hidden; border-radius: 105px 105px 0 0;
+  background: linear-gradient(180deg, #241a46 0%, #3b2a68 45%, #5d3f86 70%, #2a2045 70.2%, #2a2045 100%); }
+#outside .o { position: absolute; }
+#oMoon { right: 18px; top: 40px; width: 38px; }
+.ostar { width: 2px; height: 2px; border-radius: 50%; background: #fff; opacity: .7; }
+#street { left: 0; top: 262px; width: 210px; }
+#walkers { left: 0; top: 300px; width: 210px; height: 30px; }
+.walker { position: absolute; top: 0; width: 14px; }
+#path { left: 0; top: 334px; width: 210px; }
+.leaf { width: 12px; will-change: transform; }
+.fog { width: 260px; height: 60px; border-radius: 50%; background: rgba(230,220,255,.22); filter: blur(10px); will-change: transform; }
+#roomFog { left: 40px; top: 560px; width: 310px; height: 90px; border-radius: 50%; background: rgba(220,210,255,.18); filter: blur(14px);
+  opacity: 0; z-index: 5; pointer-events: none; }
+
+.kid { will-change: transform; transform-origin: 50% 100%; overflow: visible; }
+.kid svg { overflow: visible; }
+#naruto { left: -4px; top: 280px; width: 124px; z-index: 3; }
+#sasuke { left: 98px; top: 292px; width: 116px; z-index: 3; }
+.clone { width: 90px; top: 226px; z-index: 2; opacity: 0; }
+#clone1 { left: -10px; } #clone2 { left: 128px; }
+.puff { width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, #e8e3f5 45%, rgba(232,227,245,0) 70%);
+  opacity: 0; z-index: 4; pointer-events: none; }
+
+/* door (inside face) */
+#hinge { left: 90px; top: 170px; width: 210px; height: 478px; perspective: 900px; z-index: 4; pointer-events: none; }
+#door { width: 100%; height: 100%; border-radius: 105px 105px 0 0; transform-origin: 0% 50%; pointer-events: auto; cursor: pointer;
+  background: linear-gradient(90deg, #d79fc1, #ecc0d7 45%, #f3d0e2); box-shadow: inset 0 0 0 6px rgba(46,33,72,.18); will-change: transform; }
+#door .panel { position: absolute; left: 26px; right: 26px; border-radius: 12px; box-shadow: inset 0 0 0 5px rgba(46,33,72,.14); }
+#door .p1 { top: 190px; height: 110px; } #door .p2 { top: 318px; height: 120px; }
+#door .knob { position: absolute; right: 18px; top: 286px; width: 18px; height: 18px; border-radius: 50%; background: #ffd25e; box-shadow: 0 3px 0 #c48b2a; }
+#peep { position: absolute; left: 50px; top: 40px; width: 110px; height: 110px; border-radius: 50%; overflow: hidden;
+  background: linear-gradient(180deg, #2a1f4c, #5d3f86); box-shadow: inset 0 0 0 7px rgba(46,33,72,.3); }
+#peep svg { position: absolute; left: 0; bottom: -6px; width: 110px; will-change: transform; }
+#door .wreath { position: absolute; left: 70px; top: 158px; width: 70px; }
+
+/* room: shelves + decor */
+#shelfL { left: 4px; top: 372px; width: 70px; z-index: 6; }
+#foxMask { left: 12px; top: 214px; width: 52px; z-index: 6; }
+#sconce { left: 330px; top: 236px; width: 40px; z-index: 6; }
+#sconceGlow { left: 290px; top: 190px; width: 120px; height: 120px; border-radius: 50%; z-index: 5;
+  background: radial-gradient(circle, rgba(255,217,138,.45), rgba(255,217,138,0) 65%); }
+#collect { left: 318px; top: 330px; width: 66px; z-index: 6; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+#collect .slot { width: 30px; height: 30px; border-radius: 8px; background: rgba(0,0,0,.18); display: grid; place-items: center; }
+#collect .slot svg { width: 26px; }
+#collectLabel { left: 312px; top: 440px; width: 78px; text-align: center; font: 700 9px/1.2 var(--body); letter-spacing: .1em;
+  text-transform: uppercase; color: var(--pink-soft); opacity: .8; z-index: 6; }
+#floor { left: 0; top: 648px; width: 390px; height: 152px; z-index: 5;
+  background: repeating-linear-gradient(90deg, #5b3a3a 0 46px, #4f3232 46px 48px); }
+#rug { left: 60px; top: 662px; width: 270px; height: 60px; border-radius: 50%; z-index: 5;
+  background: radial-gradient(ellipse, #ff9cc6 0 40%, #f57fb0 41% 55%, #ff9cc6 56% 70%, transparent 71%); opacity: .9; }
+
+/* bowl in her hands */
+#hands { left: 0; top: 600px; width: 390px; z-index: 7; pointer-events: none; }
+.candy { width: 46px; z-index: 9; cursor: grab; touch-action: none; will-change: transform; }
+.candy svg { width: 100%; display: block; filter: drop-shadow(0 3px 0 rgba(46,33,72,.35)); pointer-events: none; }
+.candy.dragging { cursor: grabbing; }
+
+/* speech */
+.bub { background: var(--cream); color: var(--ink); font: 400 14px/1.2 var(--display); padding: 9px 12px; border-radius: 16px;
+  opacity: 0; z-index: 12; max-width: 170px; text-align: center; box-shadow: 0 6px 0 rgba(46,33,72,.25); pointer-events: none; }
+#bubN { left: 34px; top: 300px; border-bottom-left-radius: 4px; }
+#bubS { left: 196px; top: 318px; border-bottom-right-radius: 4px; }
+#bubBig { left: 50%; top: 236px; transform: translateX(-50%); font-size: 22px; max-width: 300px; padding: 12px 18px;
+  background: linear-gradient(180deg, #fff6ea, #ffe3c2); }
+#hint { left: 0; right: 0; top: 590px; text-align: center; font: 700 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--glow); opacity: 0; z-index: 12; pointer-events: none; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+
+.btn { appearance: none; border: 0; cursor: pointer; font: 400 16px/1 var(--display); color: var(--ink);
+  background: linear-gradient(180deg, #ffe0ec, var(--pink)); padding: 14px 22px; border-radius: 99px;
+  box-shadow: 0 5px 0 #c9578a, 0 10px 24px rgba(0,0,0,.3); }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #c9578a; }
+.btn:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+#done { left: 50%; top: 548px; transform: translateX(-50%); z-index: 13; white-space: nowrap; }
+
+/* happy meal box + card */
+#hmBox { left: 140px; top: 470px; width: 110px; z-index: 11; opacity: 0; cursor: pointer; will-change: transform; }
+#card { left: 26px; right: 26px; top: 128px; z-index: 20; background: var(--cream); color: var(--ink); border-radius: 22px;
+  padding: 24px 20px 20px; box-shadow: 0 20px 50px rgba(15,8,35,.6); opacity: 0; visibility: hidden; display: grid; gap: 12px; }
+#card .tape { position: absolute; top: -12px; left: 50%; width: 92px; height: 24px; margin-left: -46px; transform: rotate(-3deg);
+  background: repeating-linear-gradient(45deg, var(--pink-soft) 0 8px, #ffe9f2 8px 16px); border-radius: 3px; }
+#card .eyebrow { font: 700 11px/1 var(--body); letter-spacing: .16em; text-transform: uppercase; color: #c23b2f; }
+#card h2 { font: 400 21px/1.15 var(--display); margin: 0; text-wrap: balance; }
+#card .row { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; }
+#card .toy { background: #fff0e0; border-radius: 16px; padding: 8px; }
+#card .photo { aspect-ratio: 4/3; max-width: 100%; border-radius: 14px; border: 3px dashed #e3c2b4; display: grid; place-items: center;
+  font: 700 12px/1.3 var(--body); color: #b09080; text-align: center; padding: 8px; background: #fff3ea; }
+#card p { margin: 0; font: 500 15px/1.5 var(--body); }
+#card .note { font: 700 11px/1.3 var(--body); color: #b09080; }
+#card .btn { justify-self: center; }
+
+/* intro */
+#intro { inset: 0; z-index: 40; display: grid; place-items: center; padding-inline: 28px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(74,47,102,.75), rgba(20,14,38,.96)); }
+#intro .inner { display: grid; gap: 14px; justify-items: center; text-align: center; }
+#intro h1 { margin: 0; font: 400 34px/1.1 var(--display); text-wrap: balance; text-shadow: 0 3px 0 var(--ink), 0 0 28px rgba(255,143,189,.5); }
+#intro p { margin: 0; font: 700 16px/1.5 var(--body); color: var(--pink-soft); max-width: 28ch; text-wrap: balance; }
+#intro small { font: 700 11px/1.3 var(--body); color: var(--pink-soft); opacity: .7; letter-spacing: .08em; }
+
+@media (prefers-reduced-motion: reduce) { .fog, .leaf { display: none; } }
+</style>
+
+<div id="stage">
+  <div id="mock" class="abs">Mock · knock 2 of 6</div>
+  <button id="mute" class="abs" type="button" hidden>Sound on</button>
+
+  <svg id="garland" class="abs" viewBox="0 0 390 70" aria-hidden="true">
+    <path d="M-5 8 Q97 52 195 18 Q293 52 395 8" fill="none" stroke="#2e2148" stroke-width="2.5"/>
+    <g id="flags"></g>
+  </svg>
+  <div id="cap" class="abs"></div>
+
+  <div id="sconceGlow" class="abs"></div>
+  <svg id="sconce" class="abs" viewBox="0 0 40 60" aria-hidden="true">
+    <rect x="16" y="34" width="8" height="24" rx="3" fill="#2e2148"/><path d="M6 10h28l-5 26H11z" fill="#ffd98a" stroke="#2e2148" stroke-width="3"/>
+  </svg>
+
+  <!-- left wall: fox mask, shelf with Hello Kitty plush, manga, a Happy Meal toy already on display -->
+  <svg id="foxMask" class="abs" viewBox="0 0 60 70" aria-label="A fox spirit mask on the wall">
+    <path d="M8 10 L18 34 M52 10 L42 34" stroke="#2e2148" stroke-width="3"/>
+    <path d="M6 6 L22 26 L38 26 L54 6 L50 40 Q30 66 10 40 Z" fill="#fff" stroke="#2e2148" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M10 12 L19 26 M50 12 L41 26" stroke="#e8463c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M18 34 q5 -4 10 0 M32 34 q5 -4 10 0" fill="none" stroke="#e8463c" stroke-width="3" stroke-linecap="round"/>
+    <path d="M24 46 Q30 52 36 46" fill="none" stroke="#e8463c" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="30" cy="22" r="3" fill="#e8463c"/>
+  </svg>
+  <svg id="shelfL" class="abs" viewBox="0 0 70 170" aria-label="A shelf with a Hello Kitty plush, manga and a Happy Meal toy">
+    <!-- Hello Kitty plush -->
+    <g transform="translate(6 0)">
+      <path d="M8 22 L10 6 L22 14Z M50 22 L48 6 L36 14Z" fill="#fff" stroke="#2e2148" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="28" rx="25" ry="18" fill="#fff" stroke="#2e2148" stroke-width="2.5"/>
+      <g transform="translate(46 10)"><ellipse cx="-5" cy="0" rx="6" ry="5" fill="#ff5c8a" stroke="#2e2148" stroke-width="2"/><ellipse cx="5" cy="0" rx="6" ry="5" fill="#ff5c8a" stroke="#2e2148" stroke-width="2"/><circle r="3" fill="#ff3d76"/></g>
+      <ellipse cx="20" cy="30" rx="2.2" ry="3" fill="#2e2148"/><ellipse cx="38" cy="30" rx="2.2" ry="3" fill="#2e2148"/>
+      <ellipse cx="29" cy="35" rx="3" ry="2" fill="#ffd25e" stroke="#2e2148" stroke-width="1.2"/>
+      <path d="M4 30h9 M4 35h9 M45 30h9 M45 35h9" stroke="#2e2148" stroke-width="1.5"/>
+      <path d="M12 44 Q29 52 46 44 L44 58 Q29 64 14 58Z" fill="#ff8fbd" stroke="#2e2148" stroke-width="2.5"/>
+    </g>
+    <rect x="0" y="64" width="70" height="8" rx="3" fill="#7a4a3a"/>
+    <!-- manga stack -->
+    <rect x="4" y="128" width="34" height="8" rx="1.5" fill="#ff8a2b" stroke="#2e2148" stroke-width="1.5"/>
+    <rect x="6" y="120" width="32" height="8" rx="1.5" fill="#3a5bd0" stroke="#2e2148" stroke-width="1.5"/>
+    <rect x="3" y="112" width="34" height="8" rx="1.5" fill="#f1f1f1" stroke="#2e2148" stroke-width="1.5"/>
+    <rect x="5" y="104" width="33" height="8" rx="1.5" fill="#2d2d38" stroke="#2e2148" stroke-width="1.5"/>
+    <rect x="4" y="96" width="34" height="8" rx="1.5" fill="#e8463c" stroke="#2e2148" stroke-width="1.5"/>
+    <!-- mini happy meal box -->
+    <g transform="translate(42 104)">
+      <path d="M2 8 L24 8 L22 32 L4 32 Z" fill="#e8322e" stroke="#2e2148" stroke-width="2"/>
+      <path d="M6 8 Q6 -2 13 -2 Q20 -2 20 8" fill="none" stroke="#ffcf3a" stroke-width="3"/>
+      <path d="M8 18 Q13 24 18 18" fill="none" stroke="#ffcf3a" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <rect x="0" y="136" width="70" height="8" rx="3" fill="#7a4a3a"/>
+  </svg>
+
+  <div id="collect" class="abs" aria-label="Her toy collection"></div>
+  <div id="collectLabel" class="abs">her toy set</div>
+
+  <div id="frame" class="abs"></div>
+  <div id="outside" class="abs" aria-hidden="false">
+    <svg id="oMoon" class="o" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="#fff3d6"/><circle cx="28" cy="14" r="14" fill="#2c2050"/></svg>
+    <svg id="street" class="o" viewBox="0 0 210 70" aria-hidden="true">
+      <path d="M0 40 L0 22 L14 10 L28 22 L28 40 Z M30 40 L30 16 L48 2 L66 16 L66 40 Z M150 40 L150 18 L168 4 L186 18 L186 40 Z M188 40 L188 24 L200 14 L212 24 L212 40Z" fill="#241a40"/>
+      <rect x="40" y="22" width="7" height="7" fill="#ffd98a" opacity=".8"/><rect x="160" y="24" width="7" height="7" fill="#ffd98a" opacity=".7"/><rect x="8" y="26" width="5" height="5" fill="#ffd98a" opacity=".6"/>
+      <rect x="0" y="40" width="210" height="30" fill="#2f2550"/>
+    </svg>
+    <div id="walkers" class="o"></div>
+    <svg id="path" class="o" viewBox="0 0 210 150" aria-hidden="true">
+      <path d="M86 0 L124 0 L180 150 L30 150 Z" fill="#7d6a9c"/>
+      <path d="M86 0 L124 0 L180 150 L30 150 Z" fill="none" stroke="#5a4a7a" stroke-width="3"/>
+      <g id="pathPumpkins"></g>
+    </svg>
+    <div class="o fog" id="fog1" style="left:-40px;top:400px"></div>
+    <div class="o fog" id="fog2" style="left:20px;top:430px;width:220px"></div>
+
+    <!-- clones (shadow clone jutsu) -->
+    <div class="o clone kid" id="clone1"></div>
+    <div class="o clone kid" id="clone2"></div>
+    <div class="o puff" id="puff1" style="left:-10px;top:250px"></div>
+    <div class="o puff" id="puff2" style="left:126px;top:246px"></div>
+
+    <!-- NARUTO -->
+    <svg id="naruto" class="o kid" viewBox="0 0 200 300" aria-label="Naruto, trick-or-treating">
+      <g id="nArm"><path d="M60 182 Q30 160 34 128" fill="none" stroke="#ff8a2b" stroke-width="16" stroke-linecap="round"/><circle cx="34" cy="124" r="11" fill="#ffd9b8" stroke="#2e2148" stroke-width="4"/></g>
+      <path d="M70 250 h22 v30 h-22z M108 250 h22 v30 h-22z" fill="#ff8a2b" stroke="#2e2148" stroke-width="4"/>
+      <path d="M66 280 h30 v10 h-30z M104 280 h30 v10 h-30z" fill="#2c4a8a" stroke="#2e2148" stroke-width="4"/>
+      <path d="M62 170 Q100 158 138 170 L148 252 Q100 264 52 252 Z" fill="#ff8a2b" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M62 170 Q100 158 138 170 L134 190 Q100 180 66 190 Z" fill="#2b2b3a"/>
+      <path d="M100 172 V250" stroke="#fff" stroke-width="3"/>
+      <path d="M150 96 Q178 104 186 126 M150 102 Q172 118 172 140" fill="none" stroke="#2c4a8a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M40 104 L18 74 L46 78 L32 40 L66 56 L68 18 L94 46 L110 10 L124 46 L152 20 L152 56 L184 44 L166 80 L188 96 L156 104 Z" fill="#ffcd2e" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="122" rx="58" ry="54" fill="#ffd9b8" stroke="#2e2148" stroke-width="5"/>
+      <path d="M44 100 L54 80 L64 102 L78 78 L88 100 L100 76 L112 100 L122 78 L136 102 L146 80 L156 100 L158 72 Q100 40 42 72 Z" fill="#ffcd2e" stroke="#2e2148" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M42 84 Q100 72 158 84 L158 98 Q100 88 42 98 Z" fill="#2c4a8a" stroke="#2e2148" stroke-width="4"/>
+      <rect x="76" y="76" width="48" height="22" rx="4" fill="#d5dde8" stroke="#2e2148" stroke-width="3.5"/>
+      <path d="M96 87 a5 5 0 1 1 5 5 a8 8 0 1 1 -8 -8 M104 82 l7 -5" fill="none" stroke="#2e2148" stroke-width="2.5" stroke-linecap="round"/>
+      <g id="nEyes">
+        <ellipse cx="78" cy="126" rx="11" ry="14" fill="#2e7be0" stroke="#2e2148" stroke-width="3"/><ellipse cx="78" cy="131" rx="7" ry="6" fill="#6fb2ff"/><circle cx="82" cy="120" r="4" fill="#fff"/><circle cx="74" cy="133" r="2" fill="#fff"/>
+        <ellipse cx="122" cy="126" rx="11" ry="14" fill="#2e7be0" stroke="#2e2148" stroke-width="3"/><ellipse cx="122" cy="131" rx="7" ry="6" fill="#6fb2ff"/><circle cx="126" cy="120" r="4" fill="#fff"/><circle cx="118" cy="133" r="2" fill="#fff"/>
+      </g>
+      <g id="nHappy" opacity="0">
+        <path d="M68 128 Q78 116 88 128 M112 128 Q122 116 132 128" fill="none" stroke="#2e2148" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <g stroke="#2e2148" stroke-width="3" stroke-linecap="round">
+        <path d="M50 134 l14 2 M50 142 l14 0 M51 150 l13 -2 M150 134 l-14 2 M150 142 l-14 0 M149 150 l-13 -2"/>
+      </g>
+      <ellipse cx="60" cy="146" rx="9" ry="5" fill="#ff8fbd" opacity=".6"/><ellipse cx="140" cy="146" rx="9" ry="5" fill="#ff8fbd" opacity=".6"/>
+      <path d="M82 148 Q100 168 118 148 Z" fill="#c2413b" stroke="#2e2148" stroke-width="3.5" stroke-linejoin="round"/>
+      <g transform="translate(138 238) scale(2.1)"><g id="nBag">
+        <path d="M-16 -22 Q0 -42 16 -22" fill="none" stroke="#2e2148" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="0" cy="0" rx="28" ry="24" fill="#ff9a52" stroke="#2e2148" stroke-width="5"/>
+        <path d="M-9 -22 Q-13 0 -9 22 M9 -22 Q13 0 9 22" fill="none" stroke="#e07a34" stroke-width="3"/>
+        <path d="M-11 -4 l5 -6 5 6z M2 -4 l5 -6 5 6z" fill="#2e2148"/><path d="M-11 8 Q0 15 11 8" fill="none" stroke="#2e2148" stroke-width="3.5" stroke-linecap="round"/>
+      </g></g>
+      <circle cx="140" cy="210" r="11" fill="#ffd9b8" stroke="#2e2148" stroke-width="4"/>
+    </svg>
+
+    <!-- SASUKE -->
+    <svg id="sasuke" class="o kid" viewBox="0 0 200 300" aria-label="Sasuke, trick-or-treating">
+      <path d="M72 250 h22 v30 h-22z M106 250 h22 v30 h-22z" fill="#f1f1f1" stroke="#2e2148" stroke-width="4"/>
+      <path d="M68 280 h30 v10 h-30z M102 280 h30 v10 h-30z" fill="#2c4a8a" stroke="#2e2148" stroke-width="4"/>
+      <path d="M62 172 Q100 160 138 172 L146 252 Q100 262 54 252 Z" fill="#2f3d73" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M70 164 Q100 176 130 164 L130 182 Q100 192 70 182 Z" fill="#2f3d73" stroke="#2e2148" stroke-width="4"/>
+      <path d="M40 116 Q30 44 100 38 L132 8 L136 40 L172 26 L160 60 L192 70 L162 92 L180 116 Z" fill="#2a3050" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+      <ellipse cx="100" cy="124" rx="56" ry="54" fill="#ffe2c8" stroke="#2e2148" stroke-width="5"/>
+      <path d="M46 86 Q38 134 50 166 L62 124 L60 94 Z M154 86 Q162 134 150 166 L138 124 L140 94 Z" fill="#2a3050" stroke="#2e2148" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M48 88 Q100 52 152 88 L142 106 L130 90 L118 108 L104 90 L92 108 L80 90 L66 106 Z" fill="#2a3050" stroke="#2e2148" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M44 84 Q100 72 156 84 L156 98 Q100 88 44 98 Z" fill="#2c4a8a" stroke="#2e2148" stroke-width="4"/>
+      <rect x="76" y="76" width="48" height="22" rx="4" fill="#d5dde8" stroke="#2e2148" stroke-width="3.5"/>
+      <path d="M96 87 a5 5 0 1 1 5 5 a8 8 0 1 1 -8 -8 M104 82 l7 -5" fill="none" stroke="#2e2148" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M68 116 l18 4 M132 116 l-18 4" stroke="#2e2148" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="80" cy="131" rx="8" ry="10.5" fill="#2e2148"/><ellipse cx="120" cy="131" rx="8" ry="10.5" fill="#2e2148"/>
+      <circle cx="83" cy="127" r="3" fill="#fff"/><circle cx="123" cy="127" r="3" fill="#fff"/><circle cx="77" cy="135" r="1.5" fill="#fff"/><circle cx="117" cy="135" r="1.5" fill="#fff"/>
+      <g id="sBlush" opacity="0"><ellipse cx="66" cy="146" rx="10" ry="5" fill="#ff8fbd"/><ellipse cx="134" cy="146" rx="10" ry="5" fill="#ff8fbd"/></g>
+      <path id="sMouth" d="M92 156 h16" stroke="#2e2148" stroke-width="3.5" stroke-linecap="round"/>
+      <g transform="translate(60 240) scale(2)"><g id="sBag">
+        <path d="M-14 -20 Q0 -38 14 -20" fill="none" stroke="#2e2148" stroke-width="5" stroke-linecap="round"/>
+        <path d="M-24 -18 h48 l-4 40 h-40z" fill="#7d4cc0" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M-10 -2 Q-10 -12 0 -12 Q10 -12 10 -2 V10 l-4 -3 -3 3 -3 -3 -3 3 -3 -3 -4 3z" fill="#fff"/>
+        <circle cx="-4" cy="-4" r="1.6" fill="#2e2148"/><circle cx="4" cy="-4" r="1.6" fill="#2e2148"/>
+      </g></g>
+      <circle cx="60" cy="210" r="11" fill="#ffe2c8" stroke="#2e2148" stroke-width="4"/>
+    </svg>
+  </div>
+
+  <div id="roomFog" class="abs"></div>
+
+  <div id="hinge" class="abs">
+    <div id="door" role="button" tabindex="0" aria-label="Open the door">
+      <div id="peep">
+        <svg viewBox="0 0 110 70" aria-hidden="true" id="peepKids">
+          <path d="M10 70 L8 40 L2 34 L14 32 L10 18 L24 26 L28 12 L36 24 L46 14 L46 30 L56 30 L50 42 L52 70Z" fill="#120d22"/>
+          <path d="M58 70 Q56 36 70 26 L84 10 L84 26 L100 20 L94 36 L108 42 L100 70Z" fill="#120d22"/>
+        </svg>
+      </div>
+      <svg class="wreath" viewBox="0 0 70 70" aria-hidden="true">
+        <circle cx="35" cy="35" r="26" fill="none" stroke="#3d2a5c" stroke-width="12"/>
+        <circle cx="35" cy="35" r="26" fill="none" stroke="#ff9a52" stroke-width="5" stroke-dasharray="4 9"/>
+        <circle cx="35" cy="62" r="7" fill="#ff9a52" stroke="#2e2148" stroke-width="2.5"/>
+      </svg>
+      <div class="panel p1"></div><div class="panel p2"></div><div class="knob"></div>
+    </div>
+  </div>
+
+  <div id="floor" class="abs"></div>
+  <div id="rug" class="abs"></div>
+
+  <div class="abs bub" id="bubBig">TRICK OR TREAT!!</div>
+  <div class="abs bub" id="bubN">Believe it!</div>
+  <div class="abs bub" id="bubS">...Hn.</div>
+  <div id="hint" class="abs">tap the door</div>
+  <button id="done" class="abs btn" type="button" hidden>That's all, enjoy!</button>
+
+  <svg id="hmBox" class="abs" viewBox="0 0 120 120" role="button" tabindex="0" aria-label="Open the Naruto Happy Meal box">
+    <path d="M14 40 L106 40 L98 112 L22 112 Z" fill="#e8322e" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M14 40 L36 20 L84 20 L106 40" fill="#f04a3e" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M40 20 Q40 2 60 2 Q80 2 80 20" fill="none" stroke="#ffcf3a" stroke-width="7"/>
+    <path d="M38 66 Q60 86 82 66" fill="none" stroke="#ffcf3a" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="44" cy="56" r="4" fill="#ffcf3a"/><circle cx="76" cy="56" r="4" fill="#ffcf3a"/>
+    <text x="60" y="102" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="11" fill="#fff">NARUTO</text>
+  </svg>
+
+  <svg id="hands" class="abs" viewBox="0 0 390 200" aria-hidden="true">
+    <path d="M60 52 Q195 34 330 52 L312 150 Q195 196 78 150 Z" fill="#ff9a52" stroke="#2e2148" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M120 46 Q116 100 124 170 M195 40 V188 M270 46 Q274 100 266 170" fill="none" stroke="#e07a34" stroke-width="5"/>
+    <path d="M148 98 l14 -16 14 16z M214 98 l14 -16 14 16z M160 124 Q195 146 230 124 Q195 134 160 124z" fill="#5a3a1a"/>
+    <ellipse cx="195" cy="52" rx="135" ry="20" fill="#e8823e" stroke="#2e2148" stroke-width="6"/>
+    <ellipse cx="195" cy="54" rx="120" ry="13" fill="#5a3a1a" opacity=".45"/>
+    <!-- her hands + cozy sleeves -->
+    <path d="M-10 200 L-10 120 Q20 96 52 110 L66 150 Q40 176 30 200Z" fill="#ffc2da" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M44 106 Q70 92 84 112 Q86 130 66 146 Q52 140 44 106Z" fill="#ffe2c8" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M400 200 L400 120 Q370 96 338 110 L324 150 Q350 176 360 200Z" fill="#ffc2da" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M346 106 Q320 92 306 112 Q304 130 324 146 Q338 140 346 106Z" fill="#ffe2c8" stroke="#2e2148" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-4 128 Q22 116 50 124 M396 128 Q368 116 340 124" fill="none" stroke="#ff9cc6" stroke-width="4"/>
+  </svg>
+
+  <div id="card" class="abs" role="dialog" aria-label="Naruto Happy Meal treat">
+    <div class="tape"></div>
+    <div class="eyebrow">Naruto x Happy Meal · treat 2 of 6</div>
+    <h2>You got the Naruto toy!</h2>
+    <div class="row">
+      <div class="toy" id="cardToy"></div>
+      <div class="photo">your photo of you two goes here</div>
+    </div>
+    <p>Your memory goes here, in your words. Like the night she made you laugh so hard you couldn't breathe.</p>
+    <div class="note">Mock text. You write the real ones.</div>
+    <button class="btn" id="keep" type="button">Put it on my shelf</button>
+  </div>
+
+  <div id="intro" class="abs">
+    <div class="inner">
+      <h1>Happy birthday, you.</h1>
+      <p>You've never handed out candy before. Tonight, you're on door duty, and some very special guests are coming.</p>
+      <button class="btn" id="start" type="button">Start the night</button>
+      <small>turn your sound on</small>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const stage = $('#stage');
+  const W = 390, H = 800;
+  let scale = 1;
+  function fit() {
+    scale = Math.min(innerWidth / W, innerHeight / H);
+    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  }
+  addEventListener('resize', fit); fit();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- sound (all synthesized, no files) ---------- */
+  const S = { ctx: null, on: true, master: null, musicTimer: null };
+  function audioInit() {
+    try {
+      S.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      S.master = S.ctx.createGain(); S.master.gain.value = .8; S.master.connect(S.ctx.destination);
+    } catch (e) { S.ctx = null; }
+  }
+  function tone(freq, t, dur, type = 'sine', vol = .2) {
+    if (!S.ctx) return;
+    const o = S.ctx.createOscillator(), g = S.ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(S.master); o.start(t); o.stop(t + dur + .05);
+  }
+  function noise(t, dur, freq, q = 1, vol = .2, sweepTo) {
+    if (!S.ctx) return;
+    const len = Math.floor(S.ctx.sampleRate * dur), buf = S.ctx.createBuffer(1, len, S.ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = S.ctx.createBufferSource(); src.buffer = buf;
+    const f = S.ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(freq, t); f.Q.value = q;
+    if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, t + dur);
+    const g = S.ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(S.master); src.start(t);
+  }
+  const sfx = {
+    bell() { if (!S.ctx) return; const t = S.ctx.currentTime; tone(659, t, 1.2, 'sine', .28); tone(1318, t, .6, 'sine', .05); tone(523, t + .45, 1.5, 'sine', .28); tone(1046, t + .45, .7, 'sine', .05); },
+    creak() { if (!S.ctx) return; const t = S.ctx.currentTime;
+      const o = S.ctx.createOscillator(), g = S.ctx.createGain(), f = S.ctx.createBiquadFilter();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(140, t); o.frequency.linearRampToValueAtTime(95, t + .5); o.frequency.linearRampToValueAtTime(120, t + .9);
+      f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 6;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .1); g.gain.linearRampToValueAtTime(.06, t + .5); g.gain.exponentialRampToValueAtTime(.0001, t + 1);
+      o.connect(f); f.connect(g); g.connect(S.master); o.start(t); o.stop(t + 1.05);
+      noise(t, 1.2, 600, .7, .05, 300); },
+    rustle() { if (!S.ctx) return; const t = S.ctx.currentTime; noise(t, .18, 3500, .8, .18); noise(t + .06, .14, 2400, .8, .12); },
+    pop() { if (!S.ctx) return; const t = S.ctx.currentTime; tone(880, t, .12, 'triangle', .15); tone(1320, t + .05, .12, 'triangle', .1); },
+    poof() { if (!S.ctx) return; const t = S.ctx.currentTime; noise(t, .5, 1200, .6, .35, 200); tone(220, t, .3, 'triangle', .08); },
+    cheer() { if (!S.ctx) return; const t = S.ctx.currentTime; [523, 659, 784, 1046].forEach((f, i) => tone(f, t + i * .07, .35, 'triangle', .12)); },
+    giggle() { if (!S.ctx) return; const t = S.ctx.currentTime; [900, 1000, 880, 1050].forEach((f, i) => tone(f, t + i * .09, .08, 'sine', .05)); }
+  };
+  // music box: a little minor-key lullaby, looped
+  const tune = [[76,1],[79,1],[83,2],[81,1],[79,1],[76,2],[74,1],[76,1],[79,1],[78,1],[76,3],[0,1],
+                [76,1],[79,1],[83,2],[86,1],[84,1],[83,2],[81,1],[79,1],[78,1],[79,1],[76,3],[0,1]];
+  function musicStart() {
+    if (!S.ctx) return;
+    const beat = .3; let i = 0, next = S.ctx.currentTime + .1;
+    const sched = () => {
+      while (next < S.ctx.currentTime + .6) {
+        const [m, len] = tune[i % tune.length];
+        if (m && S.on) { const f = 440 * Math.pow(2, (m - 69) / 12); tone(f, next, 1.4, 'triangle', .045); tone(f * 2, next, .5, 'sine', .015); }
+        next += beat * len; i++;
+      }
+    };
+    sched(); S.musicTimer = setInterval(sched, 150);
+  }
+  $('#mute').addEventListener('click', () => {
+    S.on = !S.on; if (S.master) S.master.gain.value = S.on ? .8 : 0;
+    $('#mute').textContent = S.on ? 'Sound on' : 'Sound off';
+  });
+
+  /* ---------- scenery ---------- */
+  const flags = $('#flags');
+  const flagCols = ['#ff9a52', '#7d4cc0', '#ff8fbd', '#a8ecd6', '#ffd25e'];
+  for (let i = 0; i < 13; i++) {
+    const x = 8 + i * 30, tt = x / 390, y = x < 195 ? 8 + 44 * Math.sin(Math.PI * x / 195) * .55 : 8 + 44 * Math.sin(Math.PI * (x - 195) / 195) * .55;
+    flags.insertAdjacentHTML('beforeend', `<path d="M${x - 10} ${y} L${x + 10} ${y} L${x} ${y + 22} Z" fill="${flagCols[i % 5]}" stroke="#2e2148" stroke-width="2"/>`);
+    if (i % 3 === 1) flags.insertAdjacentHTML('beforeend', `<path d="M${x - 6} ${y + 9} q3 -4 6 0 q3 -4 6 0" fill="none" stroke="#2e2148" stroke-width="1.5"/>`);
+  }
+  const out = $('#outside');
+  for (let i = 0; i < 18; i++) {
+    const s = document.createElement('div'); s.className = 'o ostar';
+    s.style.left = (Math.random() * 200) + 'px'; s.style.top = (Math.random() * 230) + 'px';
+    out.insertBefore(s, out.firstChild);
+    if (!reduce) gsap.to(s, { opacity: .15, duration: 1 + Math.random() * 2, yoyo: true, repeat: -1, delay: Math.random() * 2 });
+  }
+  const pp = $('#pathPumpkins');
+  [[38, 120, 1], [172, 120, 1], [64, 60, .7], [146, 60, .7], [80, 22, .5], [130, 22, .5]].forEach(([x, y, k]) => {
+    pp.insertAdjacentHTML('beforeend', `<g transform="translate(${x} ${y}) scale(${k})"><ellipse cx="0" cy="0" rx="16" ry="12" fill="#ff9a52" stroke="#2e2148" stroke-width="3"/><path d="M-6 -2 l3 -4 3 4z M3 -2 l3 -4 3 4z M-6 4 Q0 9 6 4" fill="#ffd98a" stroke="#ffd98a" stroke-width="1"/><path d="M0 -12 q1 -5 5 -5" fill="none" stroke="#5c8f3a" stroke-width="3"/></g>`);
+  });
+  // tiny trick-or-treaters walking on the far street
+  const walkers = $('#walkers');
+  const wCols = ['#ff8fbd', '#a8ecd6', '#ffd25e', '#c7a6ff'];
+  for (let i = 0; i < 4; i++) {
+    const w = document.createElement('div'); w.className = 'walker';
+    w.innerHTML = `<svg viewBox="0 0 14 26"><circle cx="7" cy="6" r="5" fill="#120d22"/><path d="M2 10 h10 l2 14 h-14z" fill="${wCols[i]}" opacity=".8"/></svg>`;
+    walkers.appendChild(w);
+    if (!reduce) gsap.fromTo(w, { x: i % 2 ? 230 : -30 }, { x: i % 2 ? -30 : 230, duration: 9 + i * 2.5, ease: 'none', repeat: -1, delay: i * 2.2 });
+    else gsap.set(w, { x: 30 + i * 40 });
+  }
+  if (!reduce) {
+    gsap.to('#fog1', { x: 40, duration: 7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('#fog2', { x: -36, duration: 9, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    gsap.to('#sconceGlow', { opacity: .75, duration: 2.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+    for (let i = 0; i < 6; i++) {
+      const l = document.createElement('div'); l.className = 'o leaf';
+      l.innerHTML = `<svg viewBox="0 0 12 12"><path d="M6 0 Q12 6 6 12 Q0 6 6 0Z" fill="${['#ff9a52', '#e8623a', '#ffcf3a'][i % 3]}"/></svg>`;
+      out.appendChild(l);
+      gsap.fromTo(l, { x: Math.random() * 210, y: -20, rotation: 0 },
+        { y: 480, x: '+=' + (Math.random() * 80 - 40), rotation: 360 * (Math.random() > .5 ? 1 : -1), duration: 6 + Math.random() * 4, ease: 'none', repeat: -1, delay: Math.random() * 6 });
+    }
+  }
+
+  // collection shelf: 6 slots; slot 1 already holds the toy from knock 1 (fox spirit)
+  const collect = $('#collect');
+  const foxToy = `<svg viewBox="0 0 40 40"><path d="M6 16 L8 2 L18 10Z M34 16 L32 2 L22 10Z" fill="#eef0ff" stroke="#2e2148" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="20" cy="22" rx="15" ry="13" fill="#ffe2c8" stroke="#2e2148" stroke-width="2.5"/><path d="M6 18 Q20 6 34 18 L32 12 Q20 4 8 12Z" fill="#eef0ff" stroke="#2e2148" stroke-width="2"/><ellipse cx="14" cy="23" rx="2" ry="3" fill="#7a3fd0"/><ellipse cx="26" cy="23" rx="2" ry="3" fill="#7a3fd0"/></svg>`;
+  const narutoToy = `<svg viewBox="0 0 40 40"><path d="M6 18 L2 8 L10 10 L8 2 L16 6 L20 0 L24 6 L32 2 L30 10 L38 8 L34 18Z" fill="#ffcd2e" stroke="#2e2148" stroke-width="2" stroke-linejoin="round"/><ellipse cx="20" cy="24" rx="14" ry="13" fill="#ffd9b8" stroke="#2e2148" stroke-width="2.5"/><path d="M6 16 Q20 12 34 16 L34 20 Q20 17 6 20Z" fill="#2c4a8a"/><rect x="15" y="14" width="10" height="5" rx="1" fill="#d5dde8"/><ellipse cx="15" cy="25" rx="2" ry="2.6" fill="#2e7be0"/><ellipse cx="25" cy="25" rx="2" ry="2.6" fill="#2e7be0"/><path d="M8 27h4 M8 30h4 M28 27h4 M28 30h4" stroke="#2e2148" stroke-width="1.2"/><path d="M16 31 Q20 35 24 31" fill="none" stroke="#2e2148" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  for (let i = 0; i < 6; i++) { const s = document.createElement('div'); s.className = 'slot'; collect.appendChild(s); }
+  collect.children[0].innerHTML = foxToy;
+  $('#cardToy').innerHTML = narutoToy;
+
+  // clones = copies of Naruto
+  const nSvg = $('#naruto');
+  ['#clone1', '#clone2'].forEach((sel, i) => {
+    const c = nSvg.cloneNode(true); c.removeAttribute('id'); c.setAttribute('aria-label', 'A shadow clone of Naruto');
+    c.querySelectorAll('[id]').forEach((el) => { el.id = el.id + '_c' + i; });
+    c.style.width = '100%'; c.style.position = 'static';
+    $(sel).appendChild(c);
+  });
+
+  /* ---------- candy in the bowl ---------- */
+  const candyArt = [
+    // mini chocolate bar
+    `<svg viewBox="0 0 60 34"><path d="M2 8 L10 4 L10 30 L2 26Z M58 8 L50 4 L50 30 L58 26Z" fill="#c9a26b" stroke="#2e2148" stroke-width="2"/><rect x="9" y="3" width="42" height="28" rx="4" fill="#d6322b" stroke="#2e2148" stroke-width="2.5"/><rect x="15" y="11" width="30" height="12" rx="3" fill="#fff"/><path d="M19 17h22" stroke="#d6322b" stroke-width="3"/></svg>`,
+    // lollipop
+    `<svg viewBox="0 0 40 60"><rect x="18" y="30" width="4" height="28" rx="2" fill="#fff6ea" stroke="#2e2148" stroke-width="1.5"/><circle cx="20" cy="18" r="16" fill="#ff8fbd" stroke="#2e2148" stroke-width="2.5"/><path d="M20 18 m-10 0 a10 10 0 1 1 10 10 a6 6 0 1 1 -6 -6 a3 3 0 1 1 3 3" fill="none" stroke="#fff" stroke-width="2.5"/></svg>`,
+    // wrapped candy
+    `<svg viewBox="0 0 60 34"><path d="M2 6 L16 17 L2 28Z M58 6 L44 17 L58 28Z" fill="#a8ecd6" stroke="#2e2148" stroke-width="2" stroke-linejoin="round"/><ellipse cx="30" cy="17" rx="16" ry="13" fill="#a8ecd6" stroke="#2e2148" stroke-width="2.5"/><path d="M22 11 Q30 23 38 11" fill="none" stroke="#fff" stroke-width="2.5"/></svg>`,
+    // candy corn
+    `<svg viewBox="0 0 40 44"><path d="M20 2 Q34 26 34 36 Q20 44 6 36 Q6 26 20 2Z" fill="#ffd25e" stroke="#2e2148" stroke-width="2.5" stroke-linejoin="round"/><path d="M11 22 Q20 18 29 22 L32 34 Q20 40 8 34Z" fill="#ff8a2b"/><path d="M8 34 Q20 40 32 34 L34 36 Q20 44 6 36Z" fill="#fff"/><path d="M20 2 Q34 26 34 36 Q20 44 6 36 Q6 26 20 2Z" fill="none" stroke="#2e2148" stroke-width="2.5"/></svg>`,
+    // purple gummy pumpkin
+    `<svg viewBox="0 0 44 38"><ellipse cx="22" cy="22" rx="19" ry="14" fill="#9b6be0" stroke="#2e2148" stroke-width="2.5"/><path d="M14 10 Q10 22 14 34 M30 10 Q34 22 30 34" fill="none" stroke="#7a4cc0" stroke-width="2"/><path d="M22 8 q1 -6 6 -6" fill="none" stroke="#5c8f3a" stroke-width="3" stroke-linecap="round"/></svg>`
+  ];
+  const homes = [[96, 616], [140, 604], [186, 598], [232, 604], [276, 616], [118, 640], [164, 632], [210, 632], [254, 640]];
+  const candies = [];
+  function makeCandy(i) {
+    const c = document.createElement('div'); c.className = 'abs candy';
+    c.innerHTML = candyArt[i % candyArt.length];
+    const [x, y] = homes[i]; c.style.left = (x - 23) + 'px'; c.style.top = (y - 20) + 'px';
+    c.dataset.home = i; stage.appendChild(c); candies.push(c);
+    gsap.set(c, { rotation: (Math.random() * 30 - 15) });
+    bindDrag(c);
+    return c;
+  }
+
+  /* ---------- state ---------- */
+  let step = 'intro';
+  const given = { n: 0, s: 0, c: 0 };
+  let clonesOut = false;
+
+  function cap(text) {
+    const el = $('#cap');
+    gsap.timeline().to(el, { opacity: 0, y: -6, duration: .2 }).add(() => { el.textContent = text; }).to(el, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.6)' });
+  }
+  function bubble(sel, text, hold = 1.8) {
+    const el = $(sel); el.textContent = text;
+    gsap.killTweensOf(el);
+    const isBig = sel === '#bubBig';
+    gsap.fromTo(el, { opacity: 0, scale: .5, xPercent: isBig ? -50 : 0, x: 0 }, { opacity: 1, scale: 1, duration: .35, ease: 'back.out(2.6)' });
+    if (hold) gsap.to(el, { opacity: 0, duration: .3, delay: hold });
+  }
+
+  function start() {
+    audioInit();  // music box removed: Kevin didn't like it; a real track replaces it
+    $('#mute').hidden = false;
+    gsap.to('#intro', { opacity: 0, duration: .8, onComplete: () => { $('#intro').hidden = true; } });
+    cap('Get comfy. Someone is coming up the walk...');
+    for (let i = 0; i < homes.length; i++) makeCandy(i);
+    gsap.from('.candy', { y: 40, opacity: 0, stagger: .05, duration: .5, ease: 'back.out(2)', delay: .4 });
+    gsap.delayedCall(2.4, ring);
+  }
+
+  function ring() {
+    step = 'ring';
+    sfx.bell();
+    gsap.fromTo('#peepKids', { y: 40 }, { y: 0, duration: .6, ease: 'back.out(1.6)' });
+    if (!reduce) gsap.to('#peepKids', { y: -4, duration: .35, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: .6 });
+    gsap.delayedCall(.9, sfx.giggle);
+    cap('Ding-dong! Two little shadows in the window. Open the door.');
+    gsap.to('#hint', { opacity: 1, duration: .3, delay: .8 });
+    gsap.to('#hint', { opacity: .35, duration: .7, yoyo: true, repeat: -1, delay: 1.4 });
+  }
+
+  function openDoor() {
+    if (step !== 'ring') return;
+    step = 'open';
+    gsap.killTweensOf('#hint'); gsap.to('#hint', { opacity: 0, duration: .2 });
+    gsap.killTweensOf('#peepKids');
+    sfx.creak();
+    const tl = gsap.timeline();
+    tl.to('#door', { rotationY: -112, duration: 1.2, ease: 'power3.inOut' })
+      .to('#roomFog', { opacity: 1, duration: 1.4 }, '<.4')
+      .fromTo('#naruto', { y: 60, scale: .85 }, { y: 0, scale: 1, duration: .55, ease: 'back.out(2.2)' }, '-=.5')
+      .fromTo('#sasuke', { y: 60, scale: .85 }, { y: 0, scale: 1, duration: .55, ease: 'back.out(2.2)' }, '<.12')
+      .add(() => { bubble('#bubBig', 'TRICK OR TREAT!!', 1.6); sfx.cheer(); }, '<.2')
+      .add(() => { bubble('#bubN', 'Believe it! Happy birthday!!', 2.2); }, '+=1.4')
+      .add(() => { bubble('#bubS', '...Happy birthday.', 2); }, '+=.6')
+      .add(() => { step = 'give'; cap('Drag candy from your bowl into their bags.'); }, '+=.2');
+    if (!reduce) {
+      gsap.to('#naruto', { y: -6, duration: .5, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 2.4 });
+      gsap.to('#nArm', { rotation: -12, transformOrigin: '60px 182px', duration: .4, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1.6 });
+      gsap.to('#sasuke', { rotation: 1.5, duration: 1.6, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 2.4 });
+    }
+  }
+
+  /* ---------- giving candy ---------- */
+  function center(el) {
+    const r = el.getBoundingClientRect(), sr = stage.getBoundingClientRect(), k = sr.width / W;
+    return { x: (r.left + r.width / 2 - sr.left) / k, y: (r.top + r.height / 2 - sr.top) / k };
+  }
+  function targets() {
+    const t = [{ key: 'n', el: $('#nBag') }, { key: 's', el: $('#sBag') }];
+    if (clonesOut) { t.push({ key: 'c', el: $('#nBag_c0') }); t.push({ key: 'c', el: $('#nBag_c1') }); }
+    return t;
+  }
+
+  function bindDrag(c) {
+    let sx, sy, moved = false, base;
+    c.addEventListener('pointerdown', (e) => {
+      if (step !== 'give' || c.dataset.used) return;
+      e.preventDefault(); c.setPointerCapture(e.pointerId); c.classList.add('dragging');
+      sx = e.clientX; sy = e.clientY; moved = false; base = { x: gsap.getProperty(c, 'x'), y: gsap.getProperty(c, 'y') };
+      gsap.to(c, { scale: 1.25, duration: .15 });
+      targets().forEach((t) => gsap.to(t.el, { scale: 1.1, transformOrigin: '50% 50%', duration: .35, yoyo: true, repeat: -1, ease: 'sine.inOut' }));
+    });
+    c.addEventListener('pointermove', (e) => {
+      if (!c.classList.contains('dragging')) return;
+      const k = stage.getBoundingClientRect().width / W;
+      const dx = (e.clientX - sx) / k, dy = (e.clientY - sy) / k;
+      if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+      gsap.set(c, { x: base.x + dx, y: base.y + dy });
+    });
+    const end = () => {
+      if (!c.classList.contains('dragging')) return;
+      c.classList.remove('dragging');
+      targets().forEach((t) => { gsap.killTweensOf(t.el); gsap.set(t.el, { scale: 1 }); });
+      const p = center(c);
+      let best = null, bd = 1e9;
+      targets().forEach((t) => { const q = center(t.el), d = Math.hypot(q.x - p.x, q.y - p.y); if (d < bd) { bd = d; best = t; } });
+      if (!moved) { // a tap sends it to whoever has less
+        const t = targets().sort((a, b) => given[a.key] - given[b.key])[0];
+        fly(c, t);
+      } else if (best && bd < 100) { drop(c, best); }
+      else { gsap.to(c, { x: 0, y: 0, scale: 1, duration: .45, ease: 'back.out(2)' }); }
+    };
+    c.addEventListener('pointerup', end);
+    c.addEventListener('pointercancel', end);
+  }
+
+  function fly(c, t) {
+    const a = center(c), b = center(t.el);
+    const bx = gsap.getProperty(c, 'x'), by = gsap.getProperty(c, 'y');
+    c.dataset.used = 1;
+    gsap.timeline()
+      .to(c, { keyframes: [
+        { x: bx + (b.x - a.x) * .5, y: by + (b.y - a.y) * .5 - 120, rotation: '+=200', scale: 1.1, duration: .32, ease: 'power1.out' },
+        { x: bx + (b.x - a.x), y: by + (b.y - a.y), rotation: '+=160', scale: .55, duration: .3, ease: 'power1.in' }
+      ] })
+      .add(() => drop(c, t, true));
+  }
+
+  function drop(c, t, already) {
+    c.dataset.used = 1;
+    gsap.to(c, { scale: .3, opacity: 0, duration: .18, onComplete: () => c.remove() });
+    sfx.rustle();
+    gsap.fromTo(t.el, { scale: 1 }, { scale: 1.15, transformOrigin: '50% 50%', duration: .09, yoyo: true, repeat: 1 });
+    hearts(center(t.el));
+    const kid = t.key === 'n' ? '#naruto' : t.key === 's' ? '#sasuke' : null;
+    if (kid) gsap.fromTo(kid, { scaleX: 1.12, scaleY: .88 }, { scaleX: 1, scaleY: 1, duration: .6, ease: 'elastic.out(1.2, .35)' });
+    given[t.key]++;
+    react(t.key);
+  }
+
+  const heartSVG = (c) => `<svg viewBox="0 0 24 22"><path d="M12 21 C-6 9 4 -4 12 5 C20 -4 30 9 12 21Z" fill="${c}" stroke="#2e2148" stroke-width="1.8"/></svg>`;
+  const sparkSVG = (c) => `<svg viewBox="0 0 24 24"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5Z" fill="${c}"/></svg>`;
+  function hearts(p) {
+    const cols = ['#ff8fbd', '#ffd25e', '#a8ecd6', '#ff6fa8', '#c7a6ff'];
+    for (let i = 0; i < 7; i++) {
+      const h = document.createElement('div'); h.className = 'abs'; h.style.cssText = `left:${p.x - 9}px;top:${p.y - 9}px;width:${i % 2 ? 14 : 18}px;z-index:14;pointer-events:none`;
+      h.innerHTML = i % 3 === 2 ? sparkSVG(cols[i % 5]) : heartSVG(cols[i % 5]);
+      stage.appendChild(h);
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.2, d = 40 + Math.random() * 50;
+      gsap.fromTo(h, { scale: 0, rotation: Math.random() * 40 - 20 },
+        { x: Math.cos(a) * d, y: Math.sin(a) * d, scale: 1, duration: .55, ease: 'back.out(2)', onComplete: () =>
+          gsap.to(h, { y: '-=24', opacity: 0, duration: .5, onComplete: () => h.remove() }) });
+    }
+  }
+  // sparkles twinkling around the door frame
+  for (let i = 0; i < 10; i++) {
+    const sp = document.createElement('div'); sp.className = 'abs';
+    const ang = Math.PI + (i / 9) * Math.PI, R = 128;
+    sp.style.cssText = `left:${195 + Math.cos(ang) * R - 6}px;top:${276 + Math.sin(ang) * R - 6}px;width:12px;z-index:6;pointer-events:none`;
+    sp.innerHTML = sparkSVG(['#ffd98a', '#ffd3e4', '#a8ecd6'][i % 3]);
+    stage.appendChild(sp);
+    gsap.fromTo(sp, { scale: .2, opacity: .3 }, { scale: 1, opacity: 1, duration: .9 + Math.random(), yoyo: true, repeat: -1, ease: 'sine.inOut', delay: Math.random() * 2 });
+  }
+
+  const nLines = ['Whoa, thanks!!', 'Another one?! You\'re the best!', 'BEST HOUSE ON THE STREET!'];
+  const sLines = ['...Thanks.', '...You didn\'t have to.', '...Hn. Fine. Thank you.'];
+  function react(key) {
+    if (key === 'n') {
+      bubble('#bubN', nLines[Math.min(given.n - 1, 2)], 1.6);
+      gsap.fromTo('#naruto', { y: 0 }, { y: -26, duration: .18, yoyo: true, repeat: 1, ease: 'power2.out' });
+      if (given.n === 1) { gsap.to('#nEyes', { opacity: 0, duration: .1 }); gsap.to('#nHappy', { opacity: 1, duration: .1 }); }
+      if (given.n === 3 && !clonesOut) shadowClones();
+    } else if (key === 's') {
+      bubble('#bubS', sLines[Math.min(given.s - 1, 2)], 1.6);
+      gsap.to('#sBlush', { opacity: Math.min(.25 + given.s * .25, 1), duration: .4 });
+      if (given.s >= 2) $('#sMouth').setAttribute('d', 'M90 154 Q100 162 110 154');
+    } else {
+      bubble('#bubN', 'The clones say thank you too!', 1.4);
+    }
+    const total = given.n + given.s + given.c;
+    if (total >= 4 && given.s >= 1 && $('#done').hidden) {
+      $('#done').hidden = false;
+      gsap.fromTo('#done', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' });
+    }
+    if (!candies.some((c) => !c.dataset.used)) finishGiving();
+  }
+
+  function shadowClones() {
+    clonesOut = true;
+    gsap.delayedCall(.9, () => {
+      bubble('#bubBig', 'SHADOW CLONE JUTSU!!', 1.8);
+      sfx.poof();
+      const tl = gsap.timeline();
+      tl.fromTo('.puff', { opacity: 0, scale: .3 }, { opacity: 1, scale: 1.3, duration: .25, ease: 'power2.out' })
+        .set('.clone', { opacity: 1 })
+        .to('.puff', { opacity: 0, scale: 1.8, duration: .5 })
+        .fromTo('.clone', { y: 20 }, { y: 0, duration: .4, ease: 'back.out(2.5)' }, '<');
+      cap('He made shadow clones for more candy. Feed the clones too.');
+    });
+  }
+
+  function finishGiving() {
+    if (step !== 'give') return;
+    step = 'thanks';
+    $('#done').hidden = true;
+    candies.forEach((c) => { if (!c.dataset.used) gsap.to(c, { opacity: .5, duration: .3 }); });
+    if (clonesOut) {
+      sfx.poof();
+      gsap.timeline().to('.puff', { opacity: 1, scale: 1.2, duration: .2 }).set('.clone', { opacity: 0 }).to('.puff', { opacity: 0, scale: 1.8, duration: .4 });
+    }
+    bubble('#bubS', '...This is from both of us.', 2.4);
+    gsap.delayedCall(.8, () => bubble('#bubN', 'It\'s a collab, believe it!', 2.4));
+    cap('They brought you something.');
+    sfx.pop();
+    gsap.fromTo('#hmBox', { opacity: 0, y: 40, scale: .4, rotation: -12 }, { opacity: 1, y: 0, scale: 1, rotation: 0, duration: .7, ease: 'back.out(2)', delay: 1.2 });
+    gsap.to('#hmBox', { rotation: 4, duration: .25, yoyo: true, repeat: -1, delay: 2.2, ease: 'sine.inOut' });
+    step = 'box';
+  }
+
+  function openBox() {
+    if (step !== 'box') return;
+    step = 'card';
+    sfx.cheer();
+    gsap.killTweensOf('#hmBox');
+    gsap.to('#hmBox', { scale: 1.3, opacity: 0, duration: .35 });
+    gsap.set('#card', { visibility: 'visible' });
+    gsap.fromTo('#card', { opacity: 0, y: 90, rotation: -4, scale: .85 }, { opacity: 1, y: 0, rotation: 0, scale: 1, duration: .8, ease: 'back.out(1.5)' });
+    gsap.from('#card > *', { opacity: 0, y: 12, duration: .4, stagger: .07, delay: .3 });
+  }
+
+  function keep() {
+    if (step !== 'card') return;
+    step = 'bye';
+    const slot = collect.children[1];
+    gsap.timeline()
+      .to('#card', { opacity: 0, x: 120, y: 160, scale: .1, rotation: 20, duration: .65, ease: 'power3.in' })
+      .set('#card', { visibility: 'hidden' })
+      .add(() => { slot.innerHTML = narutoToy; sfx.pop(); })
+      .fromTo(slot, { scale: 0 }, { scale: 1, duration: .6, ease: 'bounce.out' })
+      .add(() => { bubble('#bubN', 'Bye!! Happy birthday!!', 1.8); bubble('#bubS', '...See you.', 1.8); })
+      .add(() => { gsap.killTweensOf('#naruto'); gsap.killTweensOf('#sasuke'); }, '+=1')
+      .to('#naruto, #sasuke', { y: -150, scale: .3, opacity: 0, duration: 1.4, ease: 'power1.in', stagger: .15 })
+      .add(() => { sfx.creak(); })
+      .to('#door', { rotationY: 0, duration: 1, ease: 'power3.inOut' })
+      .to('#roomFog', { opacity: 0, duration: .8 }, '<')
+      .add(() => { cap('2 of 6 toys collected. Listen... the next knock is coming.'); $('#mock').textContent = 'Mock ends here · tap door to replay'; step = 'replay'; });
+  }
+
+  function replay() {
+    Object.keys(given).forEach((k) => { given[k] = 0; }); clonesOut = false;
+    candies.splice(0).forEach((c) => c.remove());
+    gsap.set('#naruto, #sasuke', { y: 0, scale: 1, opacity: 1 });
+    gsap.set('#nEyes', { opacity: 1 }); gsap.set('#nHappy', { opacity: 0 }); gsap.set('#sBlush', { opacity: 0 });
+    $('#sMouth').setAttribute('d', 'M92 156 h16');
+    collect.children[1].innerHTML = '';
+    for (let i = 0; i < homes.length; i++) makeCandy(i);
+    $('#mock').textContent = 'Mock · knock 2 of 6';
+    cap('Someone is coming up the walk...');
+    gsap.delayedCall(1.4, ring);
+    step = 'wait';
+  }
+
+  $('#start').addEventListener('click', start);
+  $('#door').addEventListener('click', () => { if (step === 'replay') replay(); else openDoor(); });
+  $('#door').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); step === 'replay' ? replay() : openDoor(); } });
+  $('#done').addEventListener('click', finishGiving);
+  $('#hmBox').addEventListener('click', openBox);
+  $('#hmBox').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBox(); } });
+  $('#keep').addEventListener('click', keep);
+})();
+</script>
