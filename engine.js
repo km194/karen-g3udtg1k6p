@@ -141,10 +141,12 @@
   for (let i = 0; i < 5; i++) {
     const s = document.createElement('div'); s.className = 'cslot'; s.style.top = (8 + i * 52) + 'px';
     s.innerHTML = `<div class="lit"></div>${i === 4 ? '<span class="q">?</span>' : ''}`;
-    s.addEventListener('click', () => { const t = s.querySelector('.toyfig'); if (t) gimmick(t); });
+    s.addEventListener('click', () => { if (s.querySelector('.toyfig')) openAlbum(i); });
     $('#caseSlots').appendChild(s); slots.push(s);
   }
+  const owned = [];
   function placeToy(i, key, animate) {
+    if (!owned.includes(i)) { owned.push(i); owned.sort(); }
     const s = slots[i]; s.querySelector('.q')?.remove();
     s.insertAdjacentHTML('beforeend', ART.toy(key));
     gsap.to(s.querySelector('.lit'), { opacity: 1, duration: .6 });
@@ -598,17 +600,64 @@
   }
   function showCard() {
     const { V, idx } = boxing;
-    $('#ccBand').style.background = V.band; $('#ccSeries').textContent = `${V.series} x`;
-    $('#ccToy').innerHTML = ART.toy(V.toy); $('#ccName').textContent = V.toyName;
-    $('#ccNum').textContent = idx === 4 ? 'Secret #5 of 5' : `#${idx + 1} of 5 · Collect them all!`;
-    $('#ccDots').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i class="${i <= idx ? 'on' : ''}"></i>`).join('');
-    $('#ccNote').textContent = (STORY.notes || [])[idx] || '';
+    cardList = [...owned.filter((i) => i !== idx), idx]; fillCard($('#card'), idx, cardList);
     gsap.to('#rise', { opacity: 0, duration: .3 });
     gsap.to('#boxHold', { y: 300, opacity: 0, duration: .5, ease: 'power2.in' });
     gsap.set('#card', { visibility: 'visible' });
     gsap.fromTo('#card', { opacity: 0, y: 80, scale: .85 }, { opacity: 1, y: 0, scale: 1, duration: .7, ease: 'back.out(1.5)' });
     step = 'card';
   }
+  /* ================= swipe through the collection ================= */
+  const toyOf = (i) => (i === 4 ? GOLDEN : VISITORS[i]);
+  let cardList = [], albumList = [];
+  function fillCard(root, idx, list) {
+    const V = toyOf(idx), q = (x) => root.querySelector(x);
+    root.dataset.idx = idx;
+    q('.band').style.background = V.band; q('.series').textContent = `${V.series} x`;
+    q('.toyHold').innerHTML = ART.toy(V.toy); q('h3').textContent = V.toyName;
+    q('.numTxt').textContent = idx === 4 ? 'Secret #5 of 5' : `#${idx + 1} of 5 · Collect them all!`;
+    q('.dots').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
+    q('.note').textContent = (STORY.notes || [])[idx] || '';
+    q('.swipeHint').hidden = list.length < 2;
+    if (root.id === 'card') $('#keep').textContent = idx === boxing.idx ? 'Add to my collection' : 'Back to my new toy';
+  }
+  function flip(root, list, to, dir) {
+    const cur = +root.dataset.idx; if (to === cur || !list.includes(to)) return;
+    if (!dir) dir = list.indexOf(to) > list.indexOf(cur) ? 1 : -1;
+    gsap.timeline()
+      .to(root, { x: -60 * dir, opacity: 0, duration: .14, ease: 'power1.in' })
+      .add(() => fillCard(root, to, list))
+      .fromTo(root, { x: 60 * dir }, { x: 0, opacity: 1, duration: .2, ease: 'power2.out' });
+    sfx.pop();
+  }
+  function swipeable(root, getList, ok) {
+    let x0 = null, y0 = 0;
+    root.addEventListener('pointerdown', (e) => { if (ok()) { x0 = e.clientX; y0 = e.clientY; } });
+    root.addEventListener('pointerup', (e) => {
+      if (x0 === null) return; const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      const list = getList(), at = list.indexOf(+root.dataset.idx), dir = dx < 0 ? 1 : -1, to = list[at + dir];
+      if (to !== undefined) flip(root, list, to, dir);
+    });
+    root.querySelector('.dots').addEventListener('click', (e) => { const i = e.target.dataset?.i; if (i !== undefined && ok()) flip(root, getList(), +i); });
+    root.querySelector('.bubble').addEventListener('click', () => gimmick(root.querySelector('.toyHold .toyfig')));
+  }
+  swipeable($('#card'), () => cardList, () => step === 'card');
+  let paused = null;
+  function openAlbum(i) {
+    if (paused || ['box', 'opening', 'card', 'bye'].includes(step)) return;
+    paused = gsap.exportRoot(); paused.pause();
+    albumList = owned.slice(); fillCard($('#album'), i, albumList);
+    gsap.set(['#albumBg', '#album'], { autoAlpha: 1 }); gsap.fromTo('#album', { scale: .85 }, { scale: 1, duration: .3, ease: 'back.out(1.5)' });
+    sfx.pop();
+  }
+  function closeAlbum() {
+    if (!paused) return;
+    gsap.to(['#albumBg', '#album'], { autoAlpha: 0, duration: .2, onComplete: () => { paused.resume(); paused = null; } });
+  }
+  swipeable($('#album'), () => albumList, () => !!paused);
+  $('#albumClose').addEventListener('click', closeAlbum); $('#albumBg').addEventListener('click', closeAlbum);
+
   function gimmick(svg) {
     if (!svg) return;
     const k = svg.dataset.toy, q = (s) => svg.querySelector(s);
@@ -624,6 +673,7 @@
     dragon: 'A dragon-scale garland... and your lamp is glowing blue.', pandora: 'Glowing Pandora plants just bloomed in your hallway.' };
   function keep() {
     if (step !== 'card') return;
+    if (+$('#card').dataset.idx !== boxing.idx) return flip($('#card'), cardList, boxing.idx);
     step = 'bye';
     const { V, idx } = boxing;
     gsap.killTweensOf('#rays');
@@ -798,7 +848,6 @@
   $('#done').addEventListener('click', () => (step === 'outside' ? goOutside() : finishGiving()));
   $('#handBtn').addEventListener('click', touch);
   key($('#yen'), flipYen); key($('#boxHold'), openBox); key($('#cake'), blow);
-  key($('#ccBubble'), () => gimmick($('#ccToy .toyfig')));
   $('#keep').addEventListener('click', keep);
   $('#letterNext').addEventListener('click', showInvite);
   $$('[data-yes]').forEach((b) => b.addEventListener('click', sayYes));

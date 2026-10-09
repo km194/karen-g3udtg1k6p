@@ -152,22 +152,28 @@ body { margin: 0; overflow: hidden; background: var(--night); color: var(--cream
 #tapOpen { left: 0; right: 0; top: 650px; text-align: center; font: 700 13px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--glow); }
 
 /* collector card: one face, no flipping */
-#card { left: 28px; right: 28px; top: 120px; z-index: 55; visibility: hidden; border-radius: 22px; overflow: hidden;
+.ccard { left: 28px; right: 28px; top: 120px; z-index: 55; visibility: hidden; border-radius: 22px; overflow: hidden;
   background: var(--cream); color: var(--ink); box-shadow: 0 20px 50px rgba(15,8,35,.6); display: grid; gap: 10px; padding: 0 18px 18px; }
-#card .band { margin: 0 -18px; padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #fff; }
-#card .band b { font: 400 13px/1.15 var(--display); }
-#card .band .arches { font: 400 11px/1 var(--display); background: #ffcf3a; color: #c4262a; padding: 5px 8px; border-radius: 99px; white-space: nowrap; }
-#card .bubble { position: relative; height: 220px; border-radius: 26px; display: grid; place-items: center;
+.ccard .band { margin: 0 -18px; padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #fff; }
+.ccard .band b { font: 400 13px/1.15 var(--display); }
+.ccard .band .arches { font: 400 11px/1 var(--display); background: #ffcf3a; color: #c4262a; padding: 5px 8px; border-radius: 99px; white-space: nowrap; }
+.ccard .bubble { position: relative; height: 220px; border-radius: 26px; display: grid; place-items: center;
   background: linear-gradient(160deg, rgba(255,255,255,.85), rgba(255,255,255,.35)); box-shadow: inset 0 0 0 3px rgba(255,255,255,.9), inset 0 -10px 30px rgba(46,33,72,.08); cursor: pointer; }
-#card .bubble::after { content: ""; position: absolute; left: 16px; top: 14px; width: 26px; height: 100px; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,0)); transform: rotate(14deg); }
-#card .bubble .toyfig { width: 112px; }
-#card .tapToy { position: absolute; bottom: 10px; font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: #a86ab0; }
-#card h3 { margin: 0; font: 400 19px/1.15 var(--display); text-wrap: balance; }
-#card .num { display: flex; justify-content: space-between; align-items: center; font: 700 12px/1.2 var(--body); color: #8a6a9a; }
-#card .dots { display: flex; gap: 5px; } #card .dots i { width: 12px; height: 12px; border-radius: 50%; background: #e8d8e8; display: block; }
-#card .dots i.on { background: var(--pink); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--pink); }
-#card .note { margin: 2px 0 0; padding: 12px 14px; border-radius: 14px; background: #fff0f6; font: 400 17px/1.5 var(--hand); color: #6a3a5a; text-align: center; text-wrap: balance; }
-#card .btn { justify-self: center; }
+.ccard .bubble::after { content: ""; position: absolute; left: 16px; top: 14px; width: 26px; height: 100px; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,0)); transform: rotate(14deg); }
+.ccard .bubble .toyfig { width: 112px; }
+.ccard .tapToy { position: absolute; bottom: 10px; font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: #a86ab0; }
+.ccard h3 { margin: 0; font: 400 19px/1.15 var(--display); text-wrap: balance; }
+.ccard .num { display: flex; justify-content: space-between; align-items: center; font: 700 12px/1.2 var(--body); color: #8a6a9a; }
+.ccard .dots { display: flex; gap: 5px; } .ccard .dots i { width: 12px; height: 12px; border-radius: 50%; background: #e8d8e8; display: block; }
+.ccard .dots i.on { background: var(--pink); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--pink); }
+.ccard .note { margin: 2px 0 0; padding: 12px 14px; border-radius: 14px; background: #fff0f6; font: 400 17px/1.5 var(--hand); color: #6a3a5a; text-align: center; text-wrap: balance; }
+.ccard .btn { justify-self: center; }
+.ccard { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.ccard .dots i { cursor: pointer; }
+.ccard .dots i.here { transform: scale(1.35); }
+.ccard .swipeHint { margin: -4px 0 0; text-align: center; font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: #a86ab0; }
+#albumBg { inset: 0; z-index: 91; visibility: hidden; background: rgba(15,10,30,.82); }
+#album { z-index: 92; }
 
 #yen { left: 75px; top: 300px; width: 240px; height: 150px; z-index: 34; perspective: 800px; opacity: 0; visibility: hidden; cursor: pointer; }
 #yen .flip { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
@@ -355,13 +361,24 @@ body { margin: 0; overflow: hidden; background: var(--night); color: var(--cream
     <div id="tapOpen" class="abs">tap to open</div>
   </div>
 
-  <div id="card" class="abs" role="dialog" aria-label="Your new toy">
-    <div class="band" id="ccBand"><b id="ccSeries"></b><span class="arches">Happy Meal</span></div>
-    <div class="bubble" id="ccBubble" role="button" tabindex="0" aria-label="Play with the toy"><div id="ccToy"></div><span class="tapToy">tap the toy</span></div>
-    <h3 id="ccName"></h3>
-    <div class="num"><span id="ccNum"></span><span class="dots" id="ccDots"></span></div>
-    <p class="note" id="ccNote"></p>
+  <div id="card" class="abs ccard" role="dialog" aria-label="Your new toy">
+    <div class="band"><b class="series"></b><span class="arches">Happy Meal</span></div>
+    <div class="bubble" role="button" tabindex="0" aria-label="Play with the toy"><div class="toyHold"></div><span class="tapToy">tap the toy</span></div>
+    <h3></h3>
+    <div class="num"><span class="numTxt"></span><span class="dots"></span></div>
+    <p class="note"></p>
+    <p class="swipeHint" hidden>swipe to see your collection</p>
     <button class="btn" id="keep" type="button">Add to my collection</button>
+  </div>
+  <div id="albumBg" class="abs"></div>
+  <div id="album" class="abs ccard" role="dialog" aria-label="Your collection">
+    <div class="band"><b class="series"></b><span class="arches">Happy Meal</span></div>
+    <div class="bubble" role="button" tabindex="0" aria-label="Play with the toy"><div class="toyHold"></div><span class="tapToy">tap the toy</span></div>
+    <h3></h3>
+    <div class="num"><span class="numTxt"></span><span class="dots"></span></div>
+    <p class="note"></p>
+    <p class="swipeHint" hidden>swipe to see your collection</p>
+    <button class="btn" id="albumClose" type="button">Close</button>
   </div>
 
   <div id="party" class="abs">
