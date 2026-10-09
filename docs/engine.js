@@ -3,7 +3,12 @@
     `<pre style="position:fixed;left:0;top:0;z-index:999;background:#fff;color:#000;font:11px monospace;white-space:pre-wrap;max-width:100%">${e.message} @${e.lineno}:${e.colno}</pre>`));
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => [...document.querySelectorAll(s)];
-  const STORY = window.STORY, ART = window.ART;
+  const STORY = window.STORY, ART = window.ART, LINES = window.LINES || {};
+  // no accidental zoom: once zoomed, a page that blocks gestures cannot be un-zoomed
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  document.addEventListener('dblclick', (e) => e.preventDefault());
+  let lastTouch = 0;
+  document.addEventListener('touchend', (e) => { const t = Date.now(); if (t - lastTouch < 320) e.preventDefault(); lastTouch = t; }, { passive: false });
   const stage = $('#stage'), world = $('#world');
   const W = 390, H = 800;
   function fit() { stage.style.transform = `translate(-50%, -50%) scale(${Math.min(innerWidth / W, innerHeight / H)})`; }
@@ -21,7 +26,23 @@
     try { S.ctx = new (window.AudioContext || window.webkitAudioContext)(); S.master = S.ctx.createGain(); S.master.gain.value = .8; S.master.connect(S.ctx.destination); }
     catch (e) { S.ctx = null; }
     if (STORY.music) { const m = $('#music'); m.src = STORY.music; m.volume = .45; m.play().catch(() => {}); }
+    loadVoices();
   }
+  /* voices: pre-recorded with free local Kokoro (gen_voices.py) */
+  const VO = {}; let voiceSrc = null;
+  function loadVoices() {
+    if (!S.ctx) return;
+    Object.keys(LINES).forEach((id) => fetch(`voices/${id}.mp3`).then((r) => (r.ok ? r.arrayBuffer() : null))
+      .then((b) => b && S.ctx.decodeAudioData(b, (buf) => { VO[id] = buf; }, () => {})).catch(() => {}));
+  }
+  function speak(id) {
+    const buf = VO[id]; if (!buf || !S.ctx) return 0;
+    try { if (voiceSrc) voiceSrc.stop(); } catch (e) {}
+    const src = S.ctx.createBufferSource(), g = S.ctx.createGain(); g.gain.value = 1.15;
+    src.buffer = buf; src.connect(g); g.connect(S.master); src.start(); voiceSrc = src;
+    return buf.duration;
+  }
+  const lineText = (id) => (LINES[id] ? LINES[id][1].replace(/\{name\}/g, name) : id);
   function tone(f, t, dur, type = 'sine', vol = .2) {
     if (!S.ctx) return;
     const o = S.ctx.createOscillator(), g = S.ctx.createGain();
@@ -74,8 +95,8 @@
     fb.insertAdjacentHTML('beforeend', `<circle cx="${x}" cy="${y + 5}" r="4.5" fill="${fcol[i % 4]}"/><circle class="fglow" cx="${x}" cy="${y + 5}" r="10" fill="${fcol[i % 4]}" opacity=".35"/>`);
   }
   if (!reduce) $$('.fglow').forEach((g, i) => gsap.to(g, { opacity: .05, duration: .8 + (i % 4) * .3, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: i * .13 }));
-  const frameHeart = `<svg viewBox="0 0 40 40" width="60%"><path d="M20 34 C2 22 8 6 20 14 C32 6 38 22 20 34Z" fill="#ffc2da" stroke="#e8a0bc" stroke-width="2"/></svg>`;
-  ['#pf1', '#pf2'].forEach((sel, i) => { const ph = (STORY.framePhotos || [])[i]; $(sel + ' .in').innerHTML = ph ? `<img src="${ph}" alt="">` : frameHeart; });
+  $('#pf1 .in').innerHTML = `<svg viewBox="0 0 40 50" width="80%"><path d="M20 6 C8 6 6 18 6 28 v16 l5 -4 5 4 4 -4 4 4 5 -4 5 4 V28 C34 18 32 6 20 6Z" fill="#fff" stroke="#2e2148" stroke-width="2"/><circle cx="15" cy="22" r="2.4" fill="#2e2148"/><circle cx="25" cy="22" r="2.4" fill="#2e2148"/><ellipse cx="11" cy="28" rx="3" ry="1.8" fill="#ff8fbd"/><ellipse cx="29" cy="28" rx="3" ry="1.8" fill="#ff8fbd"/></svg>`;
+  $('#pf2 .in').innerHTML = `<svg viewBox="0 0 40 40" width="80%"><ellipse cx="20" cy="24" rx="15" ry="12" fill="#ff9a52" stroke="#2e2148" stroke-width="2"/><path d="M20 12 q1 -6 6 -6" fill="none" stroke="#5c8f3a" stroke-width="3"/><path d="M13 22 l3 -4 3 4z M21 22 l3 -4 3 4z M13 28 Q20 34 27 28" fill="#5a3a1a"/></svg>`;
 
   let hour = 7;
   function setClock(h, animate = true) {
@@ -86,7 +107,7 @@
   setClock(7, false);
 
   const out = $('#outside');
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 10; i++) {
     const s = document.createElement('div'); s.className = 'o ostar';
     s.style.left = Math.random() * 200 + 'px'; s.style.top = Math.random() * 230 + 'px'; out.insertBefore(s, out.firstChild);
     if (!reduce) gsap.to(s, { opacity: .15, duration: 1 + Math.random() * 2, yoyo: true, repeat: -1, delay: Math.random() * 2 });
@@ -113,6 +134,8 @@
     }
   }
 
+  { const g = $('#rayG'); for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, b = a + .12;
+      g.insertAdjacentHTML('beforeend', `<path d="M0 0 L${Math.cos(a) * 150} ${Math.sin(a) * 150} L${Math.cos(b) * 150} ${Math.sin(b) * 150}Z"/>`); } }
   /* the display case: 5 slots, the last one a secret */
   const slots = [];
   for (let i = 0; i < 5; i++) {
@@ -162,7 +185,7 @@
         `<g transform="translate(${x} 70) scale(${k})"><path d="M0 0 Q-14 -30 -4 -60 Q2 -30 0 0 Q8 -40 22 -56 Q10 -26 0 0" fill="#3d7a6a"/><circle cx="-4" cy="-60" r="5" fill="#a8fbff"/><circle cx="22" cy="-56" r="4" fill="#ff8fe0"/><path d="M-2 -10 q-6 -16 0 -30" fill="none" stroke="#a8fbff" stroke-width="2" opacity=".8"/></g>`));
       gsap.to('#mPlants', { opacity: 1, duration: animate ? 1.4 : 0 });
       if (!reduce) gsap.to('#plantBits circle', { opacity: .35, duration: 1.2, yoyo: true, repeat: -1, ease: 'sine.inOut', stagger: .15 });
-      for (let i = 0; i < 5; i++) wisp($('#wisps'), 30 + Math.random() * 330, 300 + Math.random() * 250, true);
+      for (let i = 0; i < 3; i++) wisp($('#wisps'), 30 + Math.random() * 330, 300 + Math.random() * 250, true);
     }
   };
 
@@ -171,27 +194,27 @@
     { series: 'Harry Potter', world: 'hogwarts', box: 'HARRY POTTER', band: '#7a2335', toy: 'harry', toyName: 'Harry with light-up wand',
       layout: 'trio', cast: ['hermione', 'harry', 'ron'], mech: 'spell', magic: 'candles',
       peep: 'Ding-dong! Three shadows in cloaks... and one is holding a wand.',
-      greet: [['harry', 'Trick or treat!'], ['ron', 'Blimey, a whole bowl!'], ['hermione', `Happy birthday, ${name}!`]],
+      greet: ['hp.g1', 'hp.g2', 'hp.g3'],
       cap: 'Tap a candy to cast a levitation spell, or drag it.',
-      gift: [['harry', 'This is from all three of us.']], bye: [['ron', `Bye, ${name}!`], ['hermione', 'See you at Hogwarts!']] },
+      gift: ['hp.gift'], bye: ['hp.bye1', 'hp.bye2'] },
     { series: 'Noragami', world: 'shrine', box: 'NORAGAMI', band: '#c4262a', toy: 'yato', toyName: 'Yato with flipping 5-yen coin',
       layout: 'solo', cast: ['yato'], mech: 'fiveyen', magic: 'charm',
       peep: 'Ding-dong! A shadow in a tracksuit... and a scarf.',
-      greet: [['yato', 'Yato God, at your service! Trick or treat!']],
+      greet: ['yato.g'],
       cap: 'A stray god. He doesn\'t look like he gets treats often.',
-      gift: [['yato', 'And this is for you, my favorite worshipper!']], bye: [['yato', 'Call me anytime! Only 5 yen!']] },
+      gift: ['yato.gift'], bye: ['yato.bye'] },
     { series: 'How to Train Your Dragon', world: 'dragon', box: 'HOW TO TRAIN YOUR DRAGON', band: '#2f4a3a', toy: 'toothless', toyName: 'Toothless with flapping wings',
       layout: 'duo', cast: ['hiccup', 'toothless'], mech: 'dragon', magic: 'dragon',
       peep: 'Ding-dong! One shadow... and a much bigger one with wings.',
-      greet: [['hiccup', 'Trick or treat! Don\'t worry, he\'s friendly.'], ['toothless', '(happy dragon noises)']],
+      greet: ['hic.g', ['toothless', '(happy dragon noises)']],
       cap: 'Give them candy. Toothless looks picky...',
-      gift: [['hiccup', 'Toothless picked this out for you.']], bye: [['hiccup', `Bye, ${name}!`], ['toothless', '(warbles goodbye)']] },
+      gift: ['hic.gift'], bye: ['hic.bye', ['toothless', '(warbles goodbye)']] },
     { series: 'Avatar', world: 'pandora', box: 'AVATAR', band: '#2d6fa8', toy: 'neytiri', toyName: 'Neytiri glow-in-the-dark figure',
       layout: 'quad', cast: ['jake', 'neytiri', 'kiri', 'tuk'], mech: 'glow', magic: 'pandora',
       peep: 'Ding-dong! Very tall shadows... with long braids.',
-      greet: [['tuk', 'Trick or treat!!'], ['jake', `Hey ${name}. Happy birthday.`], ['neytiri', 'We came a long way to see you.']],
+      greet: ['tuk.g', 'jake.g', 'ney.g'],
       cap: 'Every candy makes them glow a little brighter.',
-      gift: [['neytiri', 'From our family to you.']], bye: [['tuk', `Bye ${name}!!`], ['kiri', '(waves shyly)']] }
+      gift: ['ney.gift'], bye: ['tuk.bye', 'kiri.bye'] }
   ];
   const GOLDEN = { series: 'Birthday Edition', world: 'golden', box: 'BIRTHDAY EDITION', band: '#d99a1a', toy: 'golden', toyName: 'Secret golden birthday heart' };
   const LAYOUT = {
@@ -201,7 +224,12 @@
   };
 
   let vi = 0, step = 'intro', st = {}, actors = [], candies = [];
+  Object.defineProperty(window, '__step', { get: () => `${vi}:${step}` });  // read-only, for automated testing
   const actor = (n) => actors.find((a) => a.name === n);
+  const cyc = (n, k) => ((n - 1) % k) + 1;
+  // one entry of greet/gift/bye: a line id (voiced) or [character, text] (Toothless noises)
+  function line(x, hold) { if (typeof x === 'string') say(x, hold); else { bubble(x[0], x[1], hold); if (x[0] === 'toothless') sfx.warble(); } }
+  const lineLen = (x) => (typeof x === 'string' && VO[x] ? VO[x].duration : 1.6);
   const node = (a, part) => document.getElementById(a.p + '-' + part);
 
   function setupVisitor(i) {
@@ -259,7 +287,6 @@
       e.preventDefault(); c.setPointerCapture(e.pointerId); c.classList.add('dragging');
       sx = e.clientX; sy = e.clientY; moved = false; base = { x: gsap.getProperty(c, 'x'), y: gsap.getProperty(c, 'y') };
       gsap.to(c, { scale: 1.25, duration: .15 });
-      targets().forEach((t) => gsap.to(t.el, { scale: 1.1, transformOrigin: '50% 50%', duration: .35, yoyo: true, repeat: -1, ease: 'sine.inOut' }));
     });
     c.addEventListener('pointermove', (e) => {
       if (!c.classList.contains('dragging')) return;
@@ -270,11 +297,10 @@
     const end = () => {
       if (!c.classList.contains('dragging')) return;
       c.classList.remove('dragging');
-      targets().forEach((t) => { gsap.killTweensOf(t.el); gsap.set(t.el, { scale: 1 }); });
       const p = center(c); let best = null, bd = 1e9;
       targets().forEach((t) => { const q = center(t.el), d = Math.hypot(q.x - p.x, q.y - p.y); if (d < bd) { bd = d; best = t; } });
       if (!moved) fly(c, pickTarget(c));
-      else if (best && bd < 100) give(c, best);
+      else if (best && (bd < 110 || (p.y < 575 && p.x > 70 && p.x < 320))) give(c, best);  // anywhere in the doorway counts
       else home(c);
     };
     c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
@@ -292,7 +318,7 @@
     const spell = VISITORS[vi]?.mech === 'spell';
     const tl = gsap.timeline({ onComplete: () => { delete c.dataset.flying; give(c, t); } });
     if (spell) {
-      if (!st.cast) { st.cast = true; bigSay('Wingardium Leviosa!', 1.4); }
+      if (!st.cast) { st.cast = true; bigSay('Wingardium Leviosa!', 1.4); speak('hp.spell'); }
       sfx.magic();
       tl.to(c, { y: by - 80, rotation: '+=20', scale: 1.15, duration: .55, ease: 'sine.out' })
         .to(c, { rotation: '-=30', duration: .25, yoyo: true, repeat: 1, ease: 'sine.inOut' })
@@ -317,7 +343,6 @@
     c.dataset.used = 1;
     gsap.to(c, { scale: .3, opacity: 0, duration: .18, onComplete: () => c.remove() });
     sfx.rustle();
-    gsap.fromTo(t.el, { scale: 1 }, { scale: 1.18, transformOrigin: '50% 50%', duration: .09, yoyo: true, repeat: 1 });
     hearts(center(t.el));
     gsap.fromTo(t.a.el, { scaleX: 1.12, scaleY: .88 }, { scaleX: 1, scaleY: 1, duration: .6, ease: 'elastic.out(1.2, .35)' });
     st.given[t.a.name]++; st.total++;
@@ -329,7 +354,8 @@
   }
 
   /* ================= reactions ================= */
-  function say(n, text, hold = 2.2) {
+  function say(id, hold = 2.2) { const L = LINES[id]; if (!L) return; const d = speak(id); bubble(L[0], lineText(id), Math.max(hold, d + .5)); }
+  function bubble(n, text, hold = 2.2) {
     const a = actor(n); if (!a) return;
     let b = document.getElementById('bub-' + a.p);
     if (!b) { b = document.createElement('div'); b.className = 'bub'; b.id = 'bub-' + a.p; $('#bubbles').appendChild(b); }
@@ -374,39 +400,37 @@
       react(a, c) {
         happy(a); hop(a);
         const n = st.given[a.name];
-        if (c.dataset.kind === 'frog') { say('ron', 'A Chocolate Frog! Careful, they jump!', 2.4); return; }
-        if (a.name === 'hermione') say('hermione', n === 1 ? 'It\'s Levi-O-sa, not Levio-SA!' : 'Ten points to Ravenclaw!');
-        else if (a.name === 'ron') say('ron', n === 1 ? 'Bloody brilliant!' : 'Mum never lets me have this many!');
-        else say('harry', n === 1 ? `Thanks, ${name}!` : 'Best house in the whole village.');
+        if (c.dataset.kind === 'frog') return say('ron.frog');
+        if (a.name === 'hermione') say(`herm.${cyc(n, 4)}`);
+        else if (a.name === 'ron') say(`ron.${cyc(n, 3)}`);
+        else say(`harry.${cyc(n, 3)}`);
       },
       ready: () => ['hermione', 'harry', 'ron'].every((n) => st.given[n] >= 1)
     },
     fiveyen: {
       react(a) {
-        const n = st.given.yato; happy(a);
-        if (n === 1) say('yato', 'Wait... a real offering?! For ME?!');
-        else if (n === 2) { say('yato', 'Nobody ever gives me stuff...', 2.6); const t = node(a, 'tears'); if (t) gsap.to(t, { opacity: 1, duration: .3 }); setMouth(a, 'open'); }
-        else say('yato', 'You\'re officially my favorite worshipper!!');
-        hop(a);
+        const n = st.given.yato; happy(a); hop(a);
+        say(`yato.${cyc(n, 5)}`);
+        if (n === 2) { const t = node(a, 'tears'); if (t) gsap.to(t, { opacity: 1, duration: .3 }); setMouth(a, 'open'); }
       },
       ready: () => st.given.yato >= 2
     },
     dragon: {
       accept(a, c) {
         if (a.name !== 'toothless' || c.dataset.kind === 'fish') return true;
-        say('toothless', '(sniffs it... and turns away)', 1.6);
+        bubble('toothless', '(sniffs it... and turns away)', 1.6);
         gsap.fromTo(a.el, { rotation: 0 }, { rotation: -6, duration: .25, yoyo: true, repeat: 1 });
-        if (!st.warned) { st.warned = true; gsap.delayedCall(1.4, () => say('hiccup', 'He only eats fish. Got any fish?', 2.4)); }
+        if (!st.warned) { st.warned = true; gsap.delayedCall(1.4, () => say('hic.fish', 2.4)); }
         return false;
       },
       react(a, c) {
         if (a.name === 'toothless') {
           setMouth(a, 'gummy'); happy(a, 2200); sfx.warble();
-          say('toothless', '(gummy smile)', 1.8); hop(a);
+          bubble('toothless', st.given.toothless === 1 ? '(gummy smile)' : '(happy wiggle)', 1.8); hop(a);
           gsap.delayedCall(2.2, () => setMouth(a, 'shut'));
         } else {
           happy(a); hop(a);
-          say('hiccup', c.dataset.kind === 'fish' ? 'Uh... I\'ll give this one to him later.' : st.given.hiccup === 1 ? 'Thanks! Way better than Viking candy.' : 'You\'re spoiling us.');
+          say(c.dataset.kind === 'fish' ? 'hic.later' : `hic.${cyc(st.given.hiccup, 3)}`);
         }
       },
       ready: () => st.given.toothless >= 1 && st.given.hiccup >= 1
@@ -415,10 +439,9 @@
       react(a) {
         const lvl = Math.min(1, st.total / 5);
         actors.forEach((x) => { const g = node(x, 'glow'); if (g) gsap.to(g, { opacity: .18 + .82 * lvl, duration: .6 }); });
-        for (let i = 0; i < 2; i++) wisp($('#cast'), 20 + Math.random() * 170, 140 + Math.random() * 120, true);
+        if (st.total <= 4) wisp($('#cast'), 20 + Math.random() * 170, 140 + Math.random() * 120, true);
         happy(a); hop(a);
-        const lines = { tuk: ['Yay!! Candy!', 'I\'m glowing!!'], kiri: ['(smiles and glows)', 'Thank you.'], jake: [`Thanks, ${name}.`, 'Look at that glow.'], neytiri: ['You are kind.', 'The forest likes you.'] };
-        say(a.name, lines[a.name][Math.min(st.given[a.name] - 1, 1)]);
+        say(`${{ tuk: 'tuk', kiri: 'kiri', jake: 'jake', neytiri: 'ney' }[a.name]}.${cyc(st.given[a.name], 3)}`);
       },
       ready: () => st.total >= 4
     }
@@ -457,7 +480,7 @@
     tl.to('#door', { rotationY: -100, duration: 1.2, ease: 'power3.inOut' }).to('#roomFog', { opacity: 1, duration: 1.4 }, '<.4');
     actors.forEach((a, i) => tl.to(a.el, { y: 0, opacity: 1, duration: .55, ease: 'back.out(2.2)' }, i === 0 ? '-=.5' : '<.12'));
     tl.add(() => { bigSay('TRICK OR TREAT!!', 1.5); sfx.cheer(); }, '<.2');
-    V.greet.forEach(([n, t], i) => tl.add(() => say(n, t, 2.4), `+=${i === 0 ? 1.3 : .8}`));
+    V.greet.forEach((x, i) => tl.add(() => line(x, 2.4), `+=${i === 0 ? 1.3 : Math.max(1.2, lineLen(V.greet[i - 1]) + .3)}`));
     tl.add(() => { step = 'give'; cap(V.cap); actors.forEach(idle); if (auto.give) autoGive(); }, '+=.3');
   }
 
@@ -470,8 +493,8 @@
   }
   function afterSpecial() {
     const V = VISITORS[vi];
-    V.gift.forEach(([n, t], i) => gsap.delayedCall(i * .8, () => say(n, t, 2.4)));
-    gsap.delayedCall(1.2, () => unbox(V, vi));
+    V.gift.forEach((x, i) => gsap.delayedCall(i * .8, () => line(x, 2.4)));
+    gsap.delayedCall(Math.max(1.4, lineLen(V.gift[0]) + .4), () => unbox(V, vi));
   }
 
   /* Harry Potter: the Sorting Hat */
@@ -481,10 +504,9 @@
     gsap.set('#sorting', { autoAlpha: 0 }); gsap.to('#sorting', { autoAlpha: 1, duration: .5 });
     gsap.fromTo('#hatWrap', { y: -120, rotation: -10 }, { y: 0, rotation: 0, duration: .9, ease: 'bounce.out' });
     const talk = () => gsap.fromTo('#hatMouth', { scaleY: .4 }, { scaleY: 1.3, svgOrigin: '104 124', duration: .12, yoyo: true, repeat: 9 });
-    const lines = ['Hmm... difficult. Very difficult.', 'Plenty of courage, I see. But oh, what a curious mind...', `Clever, kind, endlessly curious... I know exactly where to put you, ${name}.`];
     const tl = gsap.timeline({ delay: 1 });
-    lines.forEach((l) => tl.add(() => { $('#hatSay').textContent = l; talk(); sfx.giggle(); }).to({}, { duration: 2.1 }));
-    tl.add(() => { $('#hatSay').textContent = ''; sfx.fanfare(); confetti(70, 195, 360, ['#1f3a7a', '#c08a4a', '#f3d9a8', '#5a7ac8']); talk(); })
+    ['hat.1', 'hat.2', 'hat.3'].forEach((id) => tl.add(() => { $('#hatSay').textContent = lineText(id); talk(); speak(id); }).to({}, { duration: Math.max(2.1, (VO[id] ? VO[id].duration : 0) + .5) }));
+    tl.add(() => { $('#hatSay').textContent = ''; speak('hat.4'); sfx.fanfare(); confetti(45, 195, 360, ['#1f3a7a', '#c08a4a', '#f3d9a8', '#5a7ac8']); talk(); })
       .to('#raven', { opacity: 1, scale: 1, duration: .6, ease: 'back.out(2.4)' }, '<')
       .to('#sorting', { autoAlpha: 0, duration: .5, delay: 2.6 })
       .add(afterSpecial);
@@ -494,7 +516,7 @@
     cap('He handed you his business card.');
     sfx.pop(); step = 'yen';
     gsap.fromTo('#yen', { autoAlpha: 0, y: 40, rotation: -8, scale: .6 }, { autoAlpha: 1, y: 0, rotation: -3, scale: 1, duration: .6, ease: 'back.out(2)' });
-    if (auto.card) gsap.delayedCall(1.2, flipYen);
+    gsap.delayedCall(auto.card ? 1.2 : 3.5, flipYen);
   }
   function flipYen() {
     if (step !== 'yen') return;
@@ -505,7 +527,8 @@
   /* How to Train Your Dragon: Toothless presses his nose to her hand */
   function handMoment() {
     cap('Toothless wants to say thank you. Hold out your hand.');
-    say('hiccup', 'He likes you. Go on, hold out your hand.', 2.6);
+    say('hic.hand', 2.6);
+    gsap.delayedCall(7, touch);
     $('#handBtn').hidden = false;
     gsap.fromTo('#handBtn', { opacity: 0, y: 20, xPercent: -50 }, { opacity: 1, y: 0, xPercent: -50, duration: .4, ease: 'back.out(2)' });
     step = 'hand';
@@ -522,7 +545,7 @@
       .to('#herHand', { y: -330, duration: .9, ease: 'power2.out' })
       .add(() => { gsap.set(node(t, 'eyes'), { opacity: 0 }); gsap.set(node(t, 'happy'), { opacity: 1 }); })
       .to(t.el, { scale: 1.35, y: 26, x: 18, duration: 1.1, ease: 'power2.inOut' }, '<')
-      .add(() => { sfx.chime(); hearts({ x: 195, y: 470 }, 16, 6.3, 70, ['#b8e04a', '#a8ecd6', '#ff8fbd', '#fff']); gsap.fromTo(stage, { filter: 'brightness(1.35)' }, { filter: 'brightness(1)', duration: 1.2 }); cap('Toothless trusts you.'); })
+      .add(() => { sfx.chime(); hearts({ x: 195, y: 470 }, 16, 6.3, 70, ['#b8e04a', '#a8ecd6', '#ff8fbd', '#fff']); gsap.fromTo('#flash', { opacity: .45 }, { opacity: 0, duration: 1.2 }); cap('Toothless trusts you.'); })
       .to({}, { duration: 2 })
       .to('#herHand', { y: 0, duration: .7, ease: 'power2.in' })
       .to(t.el, { scale: 1, y: 0, x: 0, duration: .8, ease: 'power2.inOut' }, '<')
@@ -533,9 +556,9 @@
   function spriteSwarm() {
     actors.forEach((x) => { const g = node(x, 'glow'); if (g) gsap.to(g, { opacity: 1, duration: .8 }); });
     sfx.chime();
-    for (let i = 0; i < 14; i++) gsap.delayedCall(i * .12, () => wisp($('#wisps'), 90 + Math.random() * 210, 260 + Math.random() * 300, true));
+    for (let i = 0; i < 8; i++) gsap.delayedCall(i * .18, () => wisp($('#wisps'), 90 + Math.random() * 210, 260 + Math.random() * 300, true));
     cap('The woodsprites came to see you.');
-    gsap.delayedCall(2.4, () => say('neytiri', `I see you, ${name}.`, 3));
+    gsap.delayedCall(2.4, () => say('ney.see', 3));
     gsap.delayedCall(5, afterSpecial);
   }
 
@@ -553,7 +576,7 @@
     gsap.to('#boxHold', { rotation: 3, duration: .3, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: 1 });
     gsap.to('#tapOpen', { opacity: .4, duration: .7, yoyo: true, repeat: -1, delay: 1 });
     sfx.pop();
-    if (auto.card) gsap.delayedCall(1.2, openBox);
+    gsap.delayedCall(auto.card ? 1.2 : 6, openBox);
   }
   function openBox() {
     if (step !== 'box') return;
@@ -566,7 +589,7 @@
       .to('#boxHold .lidR', { x: 40, y: -60, rotation: 50, opacity: 0, transformOrigin: '50% 50%', duration: .55, ease: 'power2.out' }, '<')
       .to('#boxHold .topper', { y: -40, opacity: 0, duration: .4 }, '<')
       .to('#rays', { opacity: 1, scale: 1.2, duration: .5 }, '<')
-      .add(() => gsap.to('#rays', { rotation: '+=360', duration: 8, ease: 'none', repeat: -1 }), '<')
+      .add(() => gsap.to('#rays', { rotation: '+=360', duration: 10, ease: 'none', repeat: -1 }), '<')
       .to('#rise', { opacity: 1, y: -150, scale: 1, duration: 1.1, ease: 'back.out(1.4)' }, '<.1')
       .to('#rise', { keyframes: [{ scaleX: -1, duration: .25 }, { scaleX: 1, duration: .25 }, { scaleX: -1, duration: .25 }, { scaleX: 1, duration: .25 }], ease: 'none' }, '<')
       .add(() => hearts(center($('#rise')), 18, 6.3, 90, ['#ffd98a', '#fff', '#ff8fbd', '#a8ecd6']), '<.5')
@@ -574,33 +597,25 @@
       .add(showCard, '+=1.1');
   }
   function showCard() {
-    const { V, idx } = boxing, m = (STORY.memories || [])[idx] || {};
+    const { V, idx } = boxing;
     $('#ccBand').style.background = V.band; $('#ccSeries').textContent = `${V.series} x`;
     $('#ccToy').innerHTML = ART.toy(V.toy); $('#ccName').textContent = V.toyName;
     $('#ccNum').textContent = idx === 4 ? 'Secret #5 of 5' : `#${idx + 1} of 5 · Collect them all!`;
     $('#ccDots').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i class="${i <= idx ? 'on' : ''}"></i>`).join('');
-    $('#cEyebrow').textContent = `${V.series} x Happy Meal · #${idx + 1}`;
-    $('#cTitle').textContent = m.title || '';
-    const ph = $('#cPhoto');
-    if (m.photo) { ph.className = 'photo has'; ph.innerHTML = `<img src="${m.photo}" alt="">`; } else { ph.className = 'photo'; ph.textContent = 'your photo of you two goes here'; }
-    $('#cText').textContent = m.text || '';
-    gsap.set('#card .flip', { rotationY: 0 });
+    $('#ccNote').textContent = (STORY.notes || [])[idx] || '';
     gsap.to('#rise', { opacity: 0, duration: .3 });
     gsap.to('#boxHold', { y: 300, opacity: 0, duration: .5, ease: 'power2.in' });
     gsap.set('#card', { visibility: 'visible' });
     gsap.fromTo('#card', { opacity: 0, y: 80, scale: .85 }, { opacity: 1, y: 0, scale: 1, duration: .7, ease: 'back.out(1.5)' });
     step = 'card';
-    if (auto.card && !auto.party) gsap.delayedCall(1.4, flipCard);
   }
-  function flipCard() { sfx.pop(); gsap.to('#card .flip', { rotationY: '+=180', duration: .8, ease: 'back.out(1.2)' }); }
   function gimmick(svg) {
     if (!svg) return;
     const k = svg.dataset.toy, q = (s) => svg.querySelector(s);
     gsap.fromTo(svg, { y: 0 }, { y: -14, duration: .18, yoyo: true, repeat: 1, ease: 'power2.out' });
     if (k === 'harry') { sfx.magic(); gsap.fromTo(q('[id$="-wandtip"]'), { attr: { r: 7 }, opacity: .3 }, { attr: { r: 18 }, opacity: 1, duration: .2, yoyo: true, repeat: 5 }); }
     else if (k === 'toothless') { sfx.warble(); gsap.fromTo(q('[id$="-wing"]'), { scaleY: 1 }, { scaleY: .55, svgOrigin: '100 190', duration: .12, yoyo: true, repeat: 7 }); }
-    else if (k === 'neytiri') { sfx.chime(); gsap.fromTo(q('[id$="-glow"]'), { opacity: .2 }, { opacity: 1, duration: .4, yoyo: true, repeat: 3 });
-      gsap.fromTo(svg, { filter: 'drop-shadow(0 0 0px #a8fbff)' }, { filter: 'drop-shadow(0 0 12px #a8fbff)', duration: .4, yoyo: true, repeat: 3 }); }
+    else if (k === 'neytiri') { sfx.chime(); gsap.fromTo(q('[id$="-glow"]'), { opacity: .2 }, { opacity: 1, duration: .4, yoyo: true, repeat: 3 }); }
     else if (k === 'yato') { sfx.pop(); const c = q('[id$="-coin"]'); gsap.set(c, { opacity: 1 });
       gsap.fromTo(c, { y: 0, scaleX: 1 }, { y: -60, scaleX: -1, svgOrigin: '40 200', duration: .35, yoyo: true, repeat: 1, ease: 'power2.out', onComplete: () => gsap.to(c, { opacity: 0, delay: .5 }) }); }
     else if (k === 'golden') { sfx.burst(); gsap.fromTo(svg, { rotationY: 0 }, { rotationY: 360, duration: 1 }); hearts(center(svg), 12, 6.3, 60, ['#ffd25e', '#fff0a8', '#ff8fbd']); }
@@ -618,8 +633,8 @@
       .to('#unbox', { autoAlpha: 0, duration: .4 }, '<.3');
     if (idx === 4) { tl.add(showFinal); return; }
     tl.add(() => { placeToy(idx, V.toy, true); sfx.pop(); })
-      .add(() => V.bye.forEach(([n, t]) => say(n, t, 1.8)), '+=.4')
-      .add(() => actors.forEach((a) => gsap.killTweensOf(a.el)), '+=1.4')
+      .add(() => V.bye.forEach((x, i) => gsap.delayedCall(i * 1.3, () => line(x, 1.8))), '+=.4')
+      .add(() => actors.forEach((a) => gsap.killTweensOf(a.el)), '+=2.6')
       .add(() => actors.forEach((a, i) => gsap.to(a.el, { y: -150, scale: .3, opacity: 0, duration: 1.3, ease: 'power1.in', delay: i * .12 })))
       .add(() => sfx.creak(), '+=1.2')
       .to('#door', { rotationY: 0, duration: 1, ease: 'power3.inOut' })
@@ -666,7 +681,7 @@
     [52, 71, 90, 109, 128].forEach((x, i) => cg.insertAdjacentHTML('beforeend', `<rect x="${x - 4}" y="30" width="8" height="30" rx="3" fill="${['#ff8fbd', '#a8ecd6', '#ffd25e', '#c7a6ff', '#ff8fbd'][i]}" stroke="#2e2148" stroke-width="2.5"/>
       <g class="flame" id="flame${i}"><path d="M${x} 8 Q${x + 9} 20 ${x} 28 Q${x - 9} 20 ${x} 8Z" fill="#ffb347"/><path d="M${x} 15 Q${x + 4} 22 ${x} 26 Q${x - 4} 22 ${x} 15Z" fill="#fff3c2"/></g>`));
     if (!reduce) $$('.flame').forEach((f, i) => gsap.to(f, { scaleY: 1.15, scaleX: .9, svgOrigin: `${[52, 71, 90, 109, 128][i]} 28`, duration: .18 + i * .03, yoyo: true, repeat: -1 }));
-    for (let i = 0; i < 8; i++) wisp($('#party'), 20 + Math.random() * 350, 250 + Math.random() * 300, true);
+    for (let i = 0; i < 4; i++) wisp($('#party'), 20 + Math.random() * 350, 250 + Math.random() * 300, true);
   }
   function goOutside() {
     if (step !== 'outside') return;
@@ -681,7 +696,7 @@
       .to(world, { opacity: 0, duration: .5 }, '-=.5')
       .set('#party', { opacity: 1 })
       .add(() => $$('.bulb').forEach((b, i) => gsap.to(b, { attr: { fill: b.dataset.c }, duration: .05, delay: i * .07, onStart: () => i % 3 === 0 && sfx.pop() })), '+=.4')
-      .add(() => { sfx.fanfare(); bigSay('SURPRISE!!', 2); confetti(70, 195, 300); }, '+=1.1')
+      .add(() => { sfx.fanfare(); bigSay('SURPRISE!!', 2); confetti(45, 195, 300); }, '+=1.1')
       .fromTo('#crowd .actor', { y: 30 }, { y: 0, duration: .5, stagger: .05, ease: 'back.out(3)' }, '<')
       .fromTo('.pen', { opacity: 0, y: -20 }, { opacity: 1, y: 0, stagger: .05, duration: .4, ease: 'back.out(2)' }, '<.2')
       .fromTo('#pTitle', { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, duration: .8, ease: 'elastic.out(1, .5)' }, '<.4')
@@ -702,7 +717,7 @@
   function celebrate() {
     step = 'celebrate'; sfx.fanfare();
     bigSay(`HAPPY BIRTHDAY, ${name.toUpperCase()}!!`, 2.6);
-    confetti(120, 195, 520);
+    confetti(60, 195, 520);
     $('#pCap').textContent = '';
     for (let i = 0; i < 8; i++) {
       const b = document.createElement('div'); b.className = 'balloon';
@@ -745,7 +760,7 @@
     if (step !== 'invite') return;
     step = 'yes'; sfx.fanfare();
     hearts({ x: 195, y: 400 }, 30, 6.3, 120);
-    confetti(80, 195, 400);
+    confetti(50, 195, 400);
     gsap.to('#invite', { opacity: 0, scale: 1.2, duration: .5, delay: .6, onComplete: () => gsap.set('#invite', { visibility: 'hidden' }) });
     gsap.delayedCall(1.6, () => bigSay('One more box...', 1.6));
     gsap.delayedCall(3, () => unbox(GOLDEN, 4));
@@ -784,7 +799,6 @@
   $('#handBtn').addEventListener('click', touch);
   key($('#yen'), flipYen); key($('#boxHold'), openBox); key($('#cake'), blow);
   key($('#ccBubble'), () => gimmick($('#ccToy .toyfig')));
-  $('#ccFlip').addEventListener('click', flipCard);
   $('#keep').addEventListener('click', keep);
   $('#letterNext').addEventListener('click', showInvite);
   $$('[data-yes]').forEach((b) => b.addEventListener('click', sayYes));

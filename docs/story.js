@@ -2,6 +2,7 @@
    KEVIN: this is the only file you need to edit.
    Change the words between the quotes. Keep the quotes and commas.
    Then run ./build.sh to update the public link.
+   If you change her name, also run gen_voices.py so the voices say it.
    ============================================================ */
 window.STORY = {
   herName: 'Karen',
@@ -10,18 +11,14 @@ window.STORY = {
   // A song file placed next to this page, e.g. 'music.mp3'. Leave '' for no music.
   music: '',
 
-  // Photos for the two frames on the hallway wall, e.g. 'us1.jpg'. Leave '' for empty frames.
-  framePhotos: ['', ''],
-
-  // One memory per toy, in order: Harry Potter, Noragami, How to Train Your Dragon, Avatar,
-  // and the secret golden toy from you.
-  // photo: an image file placed next to this page, e.g. 'us1.jpg'. Leave '' for a placeholder.
-  memories: [
-    { title: 'The first time we talked', text: 'Write it here: what you remember about the first conversation, and what you thought of her after.', photo: '' },
-    { title: 'Something I noticed about you', text: 'Write it here: a small thing she does that you love and she probably doesn\'t know you noticed.', photo: '' },
-    { title: 'When you made me laugh the hardest', text: 'Write it here: the moment, the inside joke, the exact words if you remember them.', photo: '' },
-    { title: 'What you mean to me', text: 'Write it here: how things are different since she showed up.', photo: '' },
-    { title: 'Happy birthday, Karen', text: 'Write it here: the one thing you most want her to know today.', photo: '' }
+  // One sweet note per toy, in order: Harry Potter, Noragami, How to Train Your Dragon,
+  // Avatar, and the secret golden toy from you. These are drafts: make them yours.
+  notes: [
+    'You make ordinary days feel like a holiday.',
+    'If I had one wish, I already used it the day we started talking.',
+    'You are my favorite person to send things to at 2am.',
+    'I see you. And I really like what I see.',
+    'Happy birthday, Karen. This year is going to be your best one yet.'
   ],
 
   // Your letter. Each line in quotes is one paragraph.
