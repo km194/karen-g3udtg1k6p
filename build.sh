@@ -11,6 +11,6 @@ mkdir -p docs
   grep -v '^<meta charset="utf-8">$' index.html
   echo '</html>'; } > docs/index.html
 cp art.js story.js lines.js engine.js docs/
-mkdir -p docs/voices && cp voices/*.mp3 docs/voices/
+rm -rf docs/voices
 for f in *.mp3 *.jpg *.jpeg *.png; do [ -e "$f" ] && cp "$f" docs/; done
 git add -A && git commit -qm "update" && git push -q && echo "pushed"

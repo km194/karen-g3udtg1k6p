@@ -26,8 +26,8 @@
     try { S.ctx = new (window.AudioContext || window.webkitAudioContext)(); S.master = S.ctx.createGain(); S.master.gain.value = .8; S.master.connect(S.ctx.destination); }
     catch (e) { S.ctx = null; }
     if (STORY.music) { const m = $('#music'); m.src = STORY.music; m.volume = .45; m.play().catch(() => {}); }
-    loadVoices();
   }
+  if (STORY.birthdaySong) { const g = $('#song'); g.src = STORY.birthdaySong; g.volume = .6; }
   /* voices: pre-recorded with free local Kokoro (gen_voices.py) */
   const VO = {}; let voiceSrc = null;
   function loadVoices() {
@@ -82,7 +82,7 @@
     fanfare() { const t = now(); [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => { tone(f, t + i * .12, .5, 'triangle', .14); tone(f / 2, t + i * .12, .5, 'sine', .06); }); }
   };
   $('#mute').addEventListener('click', () => {
-    S.on = !S.on; if (S.master) S.master.gain.value = S.on ? .8 : 0; $('#music').muted = !S.on;
+    S.on = !S.on; if (S.master) S.master.gain.value = S.on ? .8 : 0; $('#music').muted = !S.on; $('#song').muted = !S.on;
     $('#mute').textContent = S.on ? 'Sound on' : 'Sound off';
   });
 
@@ -231,7 +231,8 @@
   const cyc = (n, k) => ((n - 1) % k) + 1;
   // one entry of greet/gift/bye: a line id (voiced) or [character, text] (Toothless noises)
   function line(x, hold) { if (typeof x === 'string') say(x, hold); else { bubble(x[0], x[1], hold); if (x[0] === 'toothless') sfx.warble(); } }
-  const lineLen = (x) => (typeof x === 'string' && VO[x] ? VO[x].duration : 1.6);
+  const readTime = (id) => Math.max(1.6, lineText(id).split(/\s+/).length / 3.2 + .6);
+  const lineLen = (x) => (typeof x === 'string' ? (VO[x] ? VO[x].duration : readTime(x)) : 1.6);
   const node = (a, part) => document.getElementById(a.p + '-' + part);
 
   function setupVisitor(i) {
@@ -356,7 +357,7 @@
   }
 
   /* ================= reactions ================= */
-  function say(id, hold = 2.2) { const L = LINES[id]; if (!L) return; const d = speak(id); bubble(L[0], lineText(id), Math.max(hold, d + .5)); }
+  function say(id, hold = 2.2) { const L = LINES[id]; if (!L) return; const d = speak(id); bubble(L[0], lineText(id), Math.max(hold, d + .5, readTime(id))); }
   function bubble(n, text, hold = 2.2) {
     const a = actor(n); if (!a) return;
     let b = document.getElementById('bub-' + a.p);
@@ -507,7 +508,7 @@
     gsap.fromTo('#hatWrap', { y: -120, rotation: -10 }, { y: 0, rotation: 0, duration: .9, ease: 'bounce.out' });
     const talk = () => gsap.fromTo('#hatMouth', { scaleY: .4 }, { scaleY: 1.3, svgOrigin: '104 124', duration: .12, yoyo: true, repeat: 9 });
     const tl = gsap.timeline({ delay: 1 });
-    ['hat.1', 'hat.2', 'hat.3'].forEach((id) => tl.add(() => { $('#hatSay').textContent = lineText(id); talk(); speak(id); }).to({}, { duration: Math.max(2.1, (VO[id] ? VO[id].duration : 0) + .5) }));
+    ['hat.1', 'hat.2', 'hat.3'].forEach((id) => tl.add(() => { $('#hatSay').textContent = lineText(id); talk(); speak(id); }).to({}, { duration: Math.max(2.1, (VO[id] ? VO[id].duration : 0) + .5, readTime(id)) }));
     tl.add(() => { $('#hatSay').textContent = ''; speak('hat.4'); sfx.fanfare(); confetti(45, 195, 360, ['#1f3a7a', '#c08a4a', '#f3d9a8', '#5a7ac8']); talk(); })
       .to('#raven', { opacity: 1, scale: 1, duration: .6, ease: 'back.out(2.4)' }, '<')
       .to('#sorting', { autoAlpha: 0, duration: .5, delay: 2.6 })
@@ -766,6 +767,7 @@
   }
   function celebrate() {
     step = 'celebrate'; sfx.fanfare();
+    if (STORY.birthdaySong) { const g = $('#song'); g.currentTime = 0; g.play().catch(() => {}); }
     bigSay(`HAPPY BIRTHDAY, ${name.toUpperCase()}!!`, 2.6);
     confetti(60, 195, 520);
     $('#pCap').textContent = '';
