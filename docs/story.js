@@ -22,11 +22,8 @@ window.STORY = {
     yato:      'Yato will grant any wish for five yen. I didn\'t need him. I already got mine when I met you.',
     tanjiro:   'Tanjiro can smell kindness from a mile away. He\'d find you in a second.',
     toothless: 'Toothless only lets a few people get close. I get it now. You\'re one of mine.',
-    deku:      'Deku became a hero just by being kind. You do that every day without trying.',
     manolo:    'Manolo picked love over everything everyone expected of him. Easiest choice I ever made too.',
     calcifer:  'Calcifer kept a whole castle warm. You do that for me just by texting good morning.',
-    niffler:   'A Niffler always goes straight for the most precious thing in the room. He went straight for you.',
-    asta:      'Surpass your limits this year. I\'ll be cheering louder than Asta.',
     neytiri:   'On Pandora, "I see you" means "I understand you." I see you, Karen. All of you.',
     golden:    'The rarest one in the set. Only one exists, just like you. Happy birthday.'
   },
