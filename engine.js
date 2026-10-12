@@ -79,6 +79,9 @@
     blow() { const t = now(); noise(t, .45, 900, .4, .25, 300); },
     shake() { const t = now(); noise(t, .12, 800, 1, .15); noise(t + .15, .12, 800, 1, .15); noise(t + .3, .12, 800, 1, .15); },
     burst() { const t = now(); noise(t, .35, 2000, .5, .25, 6000); [784, 988, 1175, 1568, 2093].forEach((f, i) => tone(f, t + .05 + i * .06, .8, 'sine', .1)); },
+    boom() { const t = now(); noise(t, .4, 500, .6, .4, 120); tone(80, t, .35, 'sine', .25); },
+    zap() { const t = now(); [1200, 800, 1600, 1000, 1800].forEach((f, i) => tone(f, t + i * .04, .06, 'square', .04)); },
+    strum(k = 0) { const t = now(); const root = [196, 220, 247, 262][k % 4]; [1, 1.25, 1.5, 2, 2.5].forEach((m, i) => { tone(root * m, t + i * .025, 1.4, 'triangle', .07); tone(root * m * 2, t + i * .025, .3, 'sine', .02); }); },
     fanfare() { const t = now(); [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => { tone(f, t + i * .12, .5, 'triangle', .14); tone(f / 2, t + i * .12, .5, 'sine', .06); }); }
   };
   $('#mute').addEventListener('click', () => {
@@ -102,9 +105,10 @@
   function setClock(h, animate = true) {
     hour = h;
     gsap.to('#hHour', { rotation: (h % 12) * 30, svgOrigin: '25 25', duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
-    gsap.to('#hMin', { rotation: animate ? '+=360' : 0, svgOrigin: '25 25', duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
+    gsap.to('#hMin', { rotation: h * 360, svgOrigin: '25 25', duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
   }
-  setClock(7, false);
+  const START = 6.5;  // 6:30pm; each visitor adds half an hour, so the finale lands at 11pm
+  setClock(START, false);
 
   const out = $('#outside');
   for (let i = 0; i < 10; i++) {
@@ -136,11 +140,11 @@
 
   { const g = $('#rayG'); for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2, b = a + .12;
       g.insertAdjacentHTML('beforeend', `<path d="M0 0 L${Math.cos(a) * 150} ${Math.sin(a) * 150} L${Math.cos(b) * 150} ${Math.sin(b) * 150}Z"/>`); } }
-  /* the display case: 5 slots, the last one a secret */
+  /* the display case: one slot per visitor (2 per shelf), the last one a secret */
   const slots = [];
-  for (let i = 0; i < 5; i++) {
-    const s = document.createElement('div'); s.className = 'cslot'; s.style.top = (8 + i * 52) + 'px';
-    s.innerHTML = `<div class="lit"></div>${i === 4 ? '<span class="q">?</span>' : ''}`;
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement('div'); s.className = 'cslot two'; s.style.top = (8 + Math.floor(i / 2) * 52) + 'px'; s.style.left = (i % 2 ? 37 : 3) + 'px';
+    s.innerHTML = `<div class="lit"></div>${i === 9 ? '<span class="q">?</span>' : ''}`;
     s.addEventListener('click', () => { if (s.querySelector('.toyfig')) openAlbum(i); });
     $('#caseSlots').appendChild(s); slots.push(s);
   }
@@ -181,6 +185,22 @@
       gsap.to('#lampGlass', { attr: { fill: '#8fd8ff' }, duration: animate ? 1 : 0 });
       $('#sconceGlow').style.setProperty('--lampGlow', 'rgba(143,216,255,.55)');
     },
+    wisteria(animate) {
+      const g = $('#wistBits'); g.innerHTML = '';
+      for (let i = 0; i < 10; i++) { const x = 18 + i * 40, y = 5 + (x < 195 ? 26 * Math.sin(Math.PI * x / 195) : 26 * Math.sin(Math.PI * (x - 195) / 195));
+        const len = [11, 8, 13, 9, 12, 8, 13, 10, 11, 9][i];
+        let c = `<g class="wclus" transform="translate(${x} ${y})"><path d="M0 0 Q2 ${len * 3} 0 ${len * 5}" fill="none" stroke="#6a9a4a" stroke-width="1.4"/><path d="M0 4 q-7 -2 -10 3 q6 2 10 -3 M0 6 q7 -2 10 3 q-6 2 -10 -3" fill="#7ab85a"/>`;
+        for (let r = 0; r < len; r++) { const wd = 4.2 * (1 - r / (len + 2)), col = ['#e2d4ff', '#c9b0f2', '#ab8ae0', '#8f6ad0'][Math.min(3, Math.floor(r / len * 4))];
+          c += `<ellipse cx="${-wd}" cy="${7 + r * 4.6}" rx="${wd * .75}" ry="2.4" fill="${col}"/><ellipse cx="${wd}" cy="${9 + r * 4.6}" rx="${wd * .75}" ry="2.4" fill="${col}"/>`; }
+        g.insertAdjacentHTML('beforeend', c + '</g>'); }
+      gsap.to('#mWisteria', { opacity: 1, duration: animate ? 1.4 : 0 });
+      if (!reduce) $$('.wclus').forEach((w, i) => gsap.to(w, { rotation: 4, transformOrigin: '50% 0%', duration: 1.6 + i * .1, yoyo: true, repeat: -1, ease: 'sine.inOut' }));
+    },
+    scorch(animate) { gsap.to('#mScorch', { opacity: 1, duration: animate ? .3 : 0 }); if (animate) { sfx.boom(); hearts({ x: 368, y: 528 }, 10, 6.3, 30, ['#ff8a2b', '#ffcf3a', '#fff']); }
+      if (!reduce) gsap.to('#mScorch .ember', { opacity: .2, duration: .5, yoyo: true, repeat: -1, stagger: .2 }); },
+    marigolds(animate) { gsap.to('#mMarigold', { opacity: 1, duration: animate ? 1.2 : 0 }); if (!reduce) gsap.to('#mMarigold .petal', { y: -4, duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut', stagger: .15 }); },
+    pickett(animate) { gsap.to('#mPickett', { opacity: 1, duration: animate ? .8 : 0 }); if (!reduce) gsap.to('#mPickett', { rotation: 8, svgOrigin: '10 40', duration: .9, yoyo: true, repeat: -1, ease: 'sine.inOut' }); },
+    bulls(animate) { gsap.to('#mBulls', { opacity: 1, duration: animate ? 1 : 0 }); if (!reduce) gsap.to('#mBulls', { rotation: 4, svgOrigin: '15 0', duration: 1.6, yoyo: true, repeat: -1, ease: 'sine.inOut' }); },
     pandora(animate) {
       const g = $('#plantBits'); g.innerHTML = '';
       [[14, 1], [44, .8], [346, 1], [376, .8], [70, .6], [320, .6]].forEach(([x, k]) => g.insertAdjacentHTML('beforeend',
@@ -205,12 +225,42 @@
       greet: ['yato.g'],
       cap: 'A stray god. He doesn\'t look like he gets treats often.',
       gift: ['yato.gift'], bye: ['yato.bye'] },
+    { series: 'Demon Slayer', world: 'slayer', box: 'DEMON SLAYER', band: '#1f7a56', toy: 'tanjiro', toyName: 'Tanjiro with Water Breathing swirl',
+      layout: 'trio', cast: ['sanemi', 'tanjiro', 'genya'], mech: 'brothers', magic: 'wisteria',
+      peep: 'Ding-dong! Three shadows... and two of them are standing very far apart.',
+      greet: ['tan.g', 'san.g', 'gen.g'],
+      cap: 'The brothers won\'t look at each other. Maybe candy will help.',
+      gift: ['tan.gift'], bye: ['gen.bye', 'san.bye'] },
     { series: 'How to Train Your Dragon', world: 'dragon', box: 'HOW TO TRAIN YOUR DRAGON', band: '#2f4a3a', toy: 'toothless', toyName: 'Toothless with flapping wings',
       layout: 'duo', cast: ['hiccup', 'toothless'], mech: 'dragon', magic: 'dragon',
       peep: 'Ding-dong! One shadow... and a much bigger one with wings.',
       greet: ['hic.g', ['toothless', '(happy dragon noises)']],
       cap: 'Give them candy. Toothless looks picky...',
       gift: ['hic.gift'], bye: ['hic.bye', ['toothless', '(warbles goodbye)']] },
+    { series: 'My Hero Academia', world: 'hero', box: 'MY HERO ACADEMIA', band: '#2d7a5a', toy: 'deku', toyName: 'Deku with One For All lightning',
+      layout: 'duo', cast: ['bakugo', 'deku'], mech: 'smash', magic: 'scorch',
+      peep: 'Ding-dong! Somebody out there is yelling. A lot.',
+      greet: ['deku.g', 'bak.g'],
+      cap: 'Careful with Bakugo. Everything he touches goes boom.',
+      gift: ['deku.gift'], bye: ['deku.bye', 'bak.bye'] },
+    { series: 'Coco x The Book of Life', world: 'muertos', box: 'DIA DE MUERTOS', band: '#b0255f', toy: 'dante', toyName: 'Dante the glowing alebrije',
+      layout: 'quad', cast: ['miguel', 'manolo', 'hector', 'maria'], mech: 'serenade', magic: 'marigolds',
+      peep: 'Ding-dong! Shadows with guitars... and one of them is a skeleton?',
+      greet: ['mig.g', 'hec.g', 'man.g'],
+      cap: 'Two guitars, one skeleton. Give them candy.',
+      gift: ['mig.gift'], bye: ['mar.bye', 'hec.bye'] },
+    { series: 'Fantastic Beasts', world: 'beasts', box: 'FANTASTIC BEASTS', band: '#6b4a33', toy: 'niffler', toyName: 'Niffler with a pouch of gold',
+      layout: 'quad', cast: ['newt', 'queenie', 'jacob', 'tina'], mech: 'niffler', magic: 'pickett',
+      peep: 'Ding-dong! Four shadows... and one of them is carrying a suitcase that is wiggling.',
+      greet: ['newt.g', 'que.g', 'jac.g'],
+      cap: 'Something small and furry is loose. Hold on to your shiny candy.',
+      gift: ['newt.gift'], bye: ['jac.bye', 'tina.bye'] },
+    { series: 'Black Clover', world: 'clover', box: 'BLACK CLOVER', band: '#2a2a34', toy: 'asta', toyName: 'Asta with anti-magic sword',
+      layout: 'quad', cast: ['asta', 'yami', 'yuno', 'magna'], mech: 'clover', magic: 'bulls',
+      peep: 'Ding-dong! Someone outside is shouting about becoming Wizard King.',
+      greet: ['asta.g', 'yuno.g', 'mag.g', 'yami.g'],
+      cap: 'Asta and Yuno are racing for candy. Everyone gets some.',
+      gift: ['asta.gift'], bye: ['asta.bye', 'yami.bye'] },
     { series: 'Avatar', world: 'pandora', box: 'AVATAR', band: '#2d6fa8', toy: 'neytiri', toyName: 'Neytiri glow-in-the-dark figure',
       layout: 'quad', cast: ['jake', 'neytiri', 'kiri', 'tuk'], mech: 'glow', magic: 'pandora',
       peep: 'Ding-dong! Very tall shadows... with long braids.',
@@ -218,6 +268,7 @@
       cap: 'Every candy makes them glow a little brighter.',
       gift: ['ney.gift'], bye: ['tuk.bye', 'kiri.bye'] }
   ];
+  const N = VISITORS.length;  // the golden secret toy is index N
   const GOLDEN = { series: 'Birthday Edition', world: 'golden', box: 'BIRTHDAY EDITION', band: '#d99a1a', toy: 'golden', toyName: 'Secret golden birthday heart' };
   const LAYOUT = {
     solo: [[30, 168, 150]], duo: [[-6, 196, 124], [86, 178, 136]],
@@ -264,7 +315,12 @@
     spell: ['choc', 'lolli', 'frog', 'corn', 'gummy', 'choc', 'mint', 'corn', 'gold'],
     fiveyen: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold'],
     dragon: ['choc', 'fish', 'lolli', 'corn', 'gummy', 'choc', 'fish', 'mint', 'corn'],
-    glow: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold']
+    glow: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold'],
+    brothers: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'mint', 'lolli', 'corn', 'gold'],
+    smash: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold'],
+    serenade: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold'],
+    niffler: ['gold', 'choc', 'gold', 'lolli', 'corn', 'gold', 'gummy', 'mint', 'choc'],
+    clover: ['choc', 'lolli', 'corn', 'gummy', 'choc', 'lolli', 'mint', 'corn', 'gold']
   };
   const HOMES = [[96, 616], [140, 604], [186, 598], [232, 604], [276, 616], [118, 640], [164, 632], [210, 632], [254, 640]];
 
@@ -447,8 +503,212 @@
         say(`${{ tuk: 'tuk', kiri: 'kiri', jake: 'jake', neytiri: 'ney' }[a.name]}.${cyc(st.given[a.name], 3)}`);
       },
       ready: () => st.total >= 4
+    },
+    brothers: {
+      react(a) {
+        const n = st.given[a.name]; happy(a); hop(a);
+        if (a.name === 'sanemi') { say(`san.${cyc(n, 3)}`); if (n === 1) { const b = node(a, 'blush'); if (b) gsap.to(b, { opacity: .8, duration: .4 }); } }
+        else if (a.name === 'genya') say(`gen.${cyc(n, 3)}`);
+        else say(`tan.${cyc(n, 3)}`);
+      },
+      ready: () => ['sanemi', 'genya', 'tanjiro'].every((n) => st.given[n] >= 1)
+    },
+    smash: {
+      react(a) {
+        const n = st.given[a.name]; happy(a); hop(a);
+        if (a.name === 'bakugo') { sfx.boom(); hearts(center(a.el), 10, 6.3, 50, ['#ff8a2b', '#ffcf3a', '#fff', '#d6322b']); gsap.fromTo('#flash', { opacity: .25 }, { opacity: 0, duration: .4 }); say(`bak.${cyc(n, 3)}`); }
+        else { sfx.zap(); const b = node(a, 'bolts'); if (b) gsap.fromTo(b, { opacity: 1 }, { opacity: 0, duration: .8 }); say(`deku.${cyc(n, 3)}`); }
+      },
+      ready: () => st.given.bakugo >= 1 && st.given.deku >= 1
+    },
+    serenade: {
+      react(a) {
+        const n = st.given[a.name]; happy(a); hop(a);
+        if (a.name === 'miguel' || a.name === 'manolo') sfx.strum(st.total);
+        petals(center(a.el), 6);
+        say(`${{ miguel: 'mig', manolo: 'man', hector: 'hec', maria: 'mar' }[a.name]}.${cyc(n, 2)}`);
+      },
+      ready: () => st.total >= 4
+    },
+    niffler: {
+      start() { gsap.delayedCall(2.4, nifflerSteal); },
+      react(a) {
+        const n = st.given[a.name]; happy(a); hop(a);
+        say(`${{ newt: 'newt', queenie: 'que', jacob: 'jac', tina: 'tina' }[a.name]}.${cyc(n, 2)}`);
+      },
+      ready: () => st.total >= 4
+    },
+    clover: {
+      react(a) {
+        const n = st.given[a.name]; happy(a); hop(a);
+        if (a.name === 'asta') say(st.given.yuno > n ? 'asta.mad' : `asta.${cyc(n, 3)}`);
+        else if (a.name === 'magna') { sfx.boom(); hearts(center(a.el), 8, 6.3, 40, ['#ff8a2b', '#ffcf3a', '#fff']); say(`mag.${cyc(n, 2)}`); }
+        else say(`${a.name}.${cyc(n, 2)}`);
+      },
+      ready: () => ['asta', 'yuno', 'magna', 'yami'].every((n) => st.given[n] >= 1)
     }
   };
+
+  function petals(p, n = 8) {
+    for (let i = 0; i < n; i++) {
+      const e = document.createElement('div'); e.className = 'abs'; e.style.cssText = `left:${p.x}px;top:${p.y}px;width:12px;z-index:84;pointer-events:none`;
+      e.innerHTML = `<svg viewBox="0 0 12 12"><path d="M6 0 Q12 6 6 12 Q0 6 6 0Z" fill="${['#ff9a2b', '#ffb43a', '#ff7a1a'][i % 3]}"/></svg>`; stage.appendChild(e);
+      gsap.to(e, { x: Math.random() * 160 - 80, y: Math.random() * 140 - 100, rotation: Math.random() * 540, opacity: 0, duration: 1.8 + Math.random(), ease: 'power1.out', onComplete: () => e.remove() });
+    }
+  }
+
+  /* ================= Fantastic Beasts: the Niffler ================= */
+  let niff = null;
+  function removeNiff() { if (niff) { gsap.killTweensOf(niff); niff.remove(); niff = null; } }
+  function nifflerSteal() {
+    if (step !== 'give' || VISITORS[vi].mech !== 'niffler') return;
+    removeNiff();
+    niff = document.createElement('div'); niff.id = 'niff'; niff.className = 'abs'; niff.innerHTML = ART.char('niffler', 'nif');
+    niff.setAttribute('role', 'button'); niff.setAttribute('aria-label', 'Tickle the Niffler'); stage.appendChild(niff);
+    st.niff = 'stealing';
+    const loot = candies.filter((c) => c.dataset.kind === 'gold' && !c.dataset.used && !c.dataset.flying);
+    const tl = gsap.timeline();
+    tl.fromTo(niff, { x: 260, y: 0 }, { x: 0, duration: .7, ease: 'power2.out' }).add(() => sfx.giggle());
+    loot.forEach((c) => {
+      c.dataset.flying = 1; c.dataset.stolen = 1;
+      tl.add(() => { const a = center(c), b = center(niff); gsap.to(c, { x: gsap.getProperty(c, 'x') + (b.x - a.x), y: gsap.getProperty(c, 'y') + (b.y - a.y), scale: .2, opacity: 0, duration: .35, ease: 'power2.in' }); sfx.pop(); }, '+=.25');
+    });
+    tl.to(niff, { x: -140, y: -70, duration: .8, ease: 'power1.inOut' }, '+=.4')
+      .add(() => {
+        st.niff = 'hiding';
+        if (!reduce) gsap.to(niff, { rotation: 6, duration: .15, yoyo: true, repeat: -1 });
+        cap(loot.length ? 'The Niffler stole all the shiny candy! Tap him to tickle it back out.' : 'A Niffler! He\'s looking for shiny things. Tap him.');
+        say('newt.niff', 2.6);
+      });
+    niff.addEventListener('click', tickle);
+  }
+  function tickle() {
+    if (!niff || st.niff !== 'hiding') return;
+    st.niff = 'caught'; gsap.killTweensOf(niff); sfx.giggle(); sfx.chime();
+    gsap.fromTo(niff, { rotation: -14 }, { rotation: 14, duration: .08, yoyo: true, repeat: 9, onComplete: () => gsap.set(niff, { rotation: 0 }) });
+    const coins = niff.querySelector('[id$="-coins"]'); if (coins) gsap.fromTo(coins, { opacity: 1 }, { opacity: 0, duration: 1, delay: .6 });
+    candies.filter((c) => c.dataset.stolen).forEach((c, i) => { delete c.dataset.stolen;
+      gsap.to(c, { x: 0, y: 0, scale: 1, opacity: 1, duration: .6, delay: .2 + i * .15, ease: 'back.out(2)', onComplete: () => delete c.dataset.flying }); });
+    say('newt.tickle', 2.6);
+    cap('Got them back! Now give out the candy.');
+  }
+  function nifflerCoin() {
+    if (!niff) { afterSpecial(); return; }
+    gsap.killTweensOf(niff);
+    cap('The Niffler has something for you...');
+    const coin = document.createElement('div'); coin.className = 'abs'; coin.style.cssText = 'left:135px;top:330px;width:120px;z-index:60;pointer-events:none';
+    coin.innerHTML = `<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="#ffcf3a" stroke="#2e2148" stroke-width="6"/><circle cx="60" cy="60" r="42" fill="none" stroke="#e09a1a" stroke-width="4"/>
+      <path d="M60 86 C22 62 34 30 60 46 C86 30 98 62 60 86Z" fill="#ff6fa8" stroke="#2e2148" stroke-width="4"/></svg>`;
+    gsap.timeline()
+      .to(niff, { x: 0, y: -40, duration: .6, ease: 'power2.inOut' })
+      .to(niff, { y: -70, duration: .2, yoyo: true, repeat: 1 })
+      .add(() => { stage.appendChild(coin); sfx.burst(); hearts({ x: 195, y: 390 }, 14, 6.3, 70, ['#ffcf3a', '#fff0a8', '#ff8fbd']); })
+      .fromTo(coin, { scale: 0, rotationY: 0 }, { scale: 1, rotationY: 720, duration: 1.2, ease: 'back.out(1.6)' })
+      .add(() => { cap('He gave you his favorite coin. Nifflers NEVER share.'); say('que.coin', 2.6); })
+      .to(coin, { opacity: 0, y: -40, duration: .5, delay: 2.8, onComplete: () => coin.remove() })
+      .to(niff, { x: 260, duration: .7, ease: 'power2.in' }, '<')
+      .add(afterSpecial);
+  }
+
+  /* ================= Demon Slayer: the brothers stand together ================= */
+  function brothersMoment() {
+    const san = actor('sanemi'), gen = actor('genya'), tan = actor('tanjiro');
+    [san, gen, tan].forEach((a) => gsap.killTweensOf(a.el));
+    cap('Tanjiro smells something...');
+    say('tan.smell', 2.6);
+    gsap.timeline({ delay: 2.8 })
+      .to(tan.el, { x: 70, y: 40, scale: .8, duration: .8, ease: 'power2.inOut' })
+      .to(san.el, { x: 40, duration: 1.1, ease: 'power2.inOut' }, '<.2')
+      .to(gen.el, { x: -46, duration: 1.1, ease: 'power2.inOut' }, '<')
+      .add(() => { sfx.chime(); happy(gen, 2600); happy(san, 2600); const b = node(san, 'blush'); if (b) gsap.to(b, { opacity: .9 }); hearts({ x: 195, y: 330 }, 16, 6.3, 70, ['#b89ae8', '#d8c4ff', '#ff8fbd', '#fff']);
+        cap('For one night, the Shinazugawa brothers stood side by side.'); })
+      .add(() => say('gen.big', 2.4), '+=.6')
+      .add(() => say('san.fine', 2.4), '+=2.6')
+      .add(afterSpecial, '+=2.6');
+  }
+
+  /* ================= My Hero Academia: hold to charge a SMASH ================= */
+  let charge = null;
+  function smashMoment() {
+    say('deku.try', 2.8);
+    cap('Hold the button to charge up One For All!');
+    $('#smashBtn').hidden = false; gsap.set('#smashBtn .meter', { width: '0%' });
+    gsap.fromTo('#smashBtn', { opacity: 0, y: 20, xPercent: -50 }, { opacity: 1, y: 0, xPercent: -50, duration: .4, ease: 'back.out(2)' });
+    step = 'smash';
+    gsap.delayedCall(12, smash);
+    if (auto.card) gsap.delayedCall(1, smash);
+  }
+  function chargeStart(e) {
+    if (step !== 'smash') return; e.preventDefault();
+    const deku = actor('deku'), b = deku && node(deku, 'bolts');
+    if (b && !reduce) gsap.to(b, { opacity: 1, duration: .1, yoyo: true, repeat: -1 });
+    sfx.zap();
+    charge = gsap.to('#smashBtn .meter', { width: '100%', duration: 1.1, ease: 'none', onComplete: smash });
+  }
+  function chargeStop() {
+    if (step !== 'smash' || !charge) return;
+    charge.kill(); charge = null; gsap.to('#smashBtn .meter', { width: '0%', duration: .2 });
+    const deku = actor('deku'), b = deku && node(deku, 'bolts'); if (b) { gsap.killTweensOf(b); gsap.set(b, { opacity: 0 }); }
+  }
+  function smash() {
+    if (step !== 'smash') return;
+    step = 'smashing'; charge = null; $('#smashBtn').hidden = true;
+    const deku = actor('deku'), b = deku && node(deku, 'bolts'); if (b) { gsap.killTweensOf(b); gsap.set(b, { opacity: 1 }); }
+    sfx.boom(); sfx.zap(); bigSay('DETROIT SMASH!!', 1.6);
+    $('#flash').style.background = '#b6ffd0';
+    gsap.fromTo('#flash', { opacity: .75 }, { opacity: 0, duration: 1, onComplete: () => { $('#flash').style.background = ''; } });
+    gsap.fromTo(world, { x: -9 }, { x: 9, duration: .05, yoyo: true, repeat: 9, onComplete: () => gsap.set(world, { x: 0 }) });
+    hearts({ x: 195, y: 420 }, 24, 6.3, 120, ['#7dffb0', '#2fa35a', '#fff', '#ffcf3a']);
+    candies.filter((c) => !c.dataset.used).forEach((c) => gsap.to(c, { y: -560, x: '+=' + (Math.random() * 200 - 100), rotation: 720, opacity: 0, duration: 1.2, ease: 'power2.in' }));
+    actors.forEach(hop);
+    gsap.delayedCall(1.6, () => { if (b) gsap.to(b, { opacity: 0, duration: .4 }); say('bak.cool', 2.4); });
+    gsap.delayedCall(4.4, afterSpecial);
+  }
+
+  /* ================= Coco x The Book of Life: tap to strum ================= */
+  function serenadeMoment() {
+    cap('They want to play you a song. Tap the guitar to strum.');
+    say('mig.play', 2.6);
+    $('#strumBtn').hidden = false; st.strums = 0;
+    gsap.fromTo('#strumBtn', { opacity: 0, y: 20, xPercent: -50 }, { opacity: 1, y: 0, xPercent: -50, duration: .4, ease: 'back.out(2)' });
+    step = 'strum';
+    gsap.delayedCall(14, () => { if (step === 'strum') endSerenade(); });
+    if (auto.card) [0, 1, 2, 3, 4].forEach((i) => gsap.delayedCall(.4 + i * .3, strum));
+  }
+  function strum() {
+    if (step !== 'strum') return;
+    sfx.strum(st.strums); st.strums++;
+    ['miguel', 'manolo'].forEach((n) => { const a = actor(n); if (a) { gsap.fromTo(a.el, { rotation: -3 }, { rotation: 3, duration: .12, yoyo: true, repeat: 1, onComplete: () => gsap.set(a.el, { rotation: 0 }) }); petals(center(a.el), 5); } });
+    gsap.fromTo('#strumBtn', { scale: .92 }, { scale: 1, duration: .25 });
+    for (let i = 0; i < 4; i++) wisp($('#wisps'), 60 + Math.random() * 270, 300 + Math.random() * 260, false);
+    if (st.strums >= 5) endSerenade();
+  }
+  function endSerenade() {
+    step = 'serenaded'; $('#strumBtn').hidden = true;
+    sfx.chime(); petals({ x: 195, y: 380 }, 30);
+    cap('The whole doorway is covered in marigold petals.');
+    gsap.delayedCall(1.4, () => say('hec.love', 3.2));
+    gsap.delayedCall(5, afterSpecial);
+  }
+
+  /* ================= Black Clover: a five-leaf grimoire opens ================= */
+  function grimoireMoment() {
+    cap('Yami pulled something out of his cloak...');
+    $('#grimSay').textContent = '';
+    gsap.set('#grimCover', { scaleX: 1 }); gsap.set('#grimPages', { opacity: 0 });
+    gsap.set('#grim', { autoAlpha: 0 }); gsap.to('#grim', { autoAlpha: 1, duration: .5 });
+    gsap.fromTo('#grimBook', { y: -120, rotation: -8, scale: .6 }, { y: 0, rotation: 0, scale: 1, duration: .9, ease: 'back.out(1.6)' });
+    const tl = gsap.timeline({ delay: 1.1 });
+    tl.add(() => { sfx.magic(); $('#grimSay').textContent = 'A five-leaf grimoire. The rarest kind there is.'; })
+      .to('#grimGlow', { opacity: 1, duration: .5, yoyo: true, repeat: 3 })
+      .to('#grimCover', { scaleX: 0, svgOrigin: '100 0', duration: .6, ease: 'power2.in' })
+      .add(() => { sfx.burst(); }).to('#grimPages', { opacity: 1, duration: .5 })
+      .add(() => { $('#grimSay').textContent = lineText('yami.limits'); }, '+=.4')
+      .to({}, { duration: Math.max(3, readTime('yami.limits')) })
+      .add(() => { $('#grimSay').textContent = ''; bigSay(`HAPPY BIRTHDAY, ${name.toUpperCase()}!!!`, 2); sfx.fanfare(); confetti(40, 195, 360, ['#3aa55a', '#e8c25a', '#1a1a22', '#fff']); })
+      .to('#grim', { autoAlpha: 0, duration: .5, delay: 2.4 })
+      .add(afterSpecial);
+  }
 
   /* ================= the knock cycle ================= */
   function idle(a, i) {
@@ -461,14 +721,14 @@
   }
   function ring() {
     step = 'ring';
-    const finale = vi === 4;
+    const finale = vi === N;
     finale ? sfx.chime() : sfx.bell();
     gsap.to(world, { scale: 1.04, duration: 1.4, ease: 'power2.out' });
     gsap.fromTo('#peepCast', { y: 50 }, { y: 0, duration: .6, ease: 'back.out(1.6)' });
     if (!reduce) gsap.to('#peepCast', { y: -5, duration: .35, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: .6 });
     if (!finale) gsap.delayedCall(.9, sfx.giggle);
     cap(finale ? 'One last knock. This one sounds different...' : VISITORS[vi].peep);
-    gsap.to('#hint', { opacity: 1, duration: .3, delay: .8 });
+    gsap.to('#hint', { opacity: 1, duration: .3, delay: .8 }); showSkip(!finale);
     gsap.to('#hint', { opacity: .35, duration: .7, yoyo: true, repeat: -1, delay: 1.4 });
     if (auto.open) gsap.delayedCall(1.2, openDoor);
   }
@@ -476,23 +736,23 @@
     if (step !== 'ring') return;
     step = 'open';
     gsap.killTweensOf('#hint'); gsap.to('#hint', { opacity: 0, duration: .2 });
-    gsap.killTweensOf('#peepCast'); sfx.creak();
+    gsap.killTweensOf('#peepCast'); sfx.creak(); showSkip(false);
     gsap.to(world, { scale: 1, duration: 1.2, ease: 'power2.inOut' });
-    if (vi === 4) return openFinale();
+    if (vi === N) return openFinale();
     const V = VISITORS[vi], tl = gsap.timeline();
     tl.to('#door', { rotationY: -100, duration: 1.2, ease: 'power3.inOut' }).to('#roomFog', { opacity: 1, duration: 1.4 }, '<.4');
     actors.forEach((a, i) => tl.to(a.el, { y: 0, opacity: 1, duration: .55, ease: 'back.out(2.2)' }, i === 0 ? '-=.5' : '<.12'));
     tl.add(() => { bigSay('TRICK OR TREAT!!', 1.5); sfx.cheer(); }, '<.2');
     V.greet.forEach((x, i) => tl.add(() => line(x, 2.4), `+=${i === 0 ? 1.3 : Math.max(1.2, lineLen(V.greet[i - 1]) + .3)}`));
-    tl.add(() => { step = 'give'; cap(V.cap); actors.forEach(idle); if (auto.give) autoGive(); }, '+=.3');
+    tl.add(() => { step = 'give'; cap(V.cap); actors.forEach(idle); showSkip(true); MECH[V.mech].start?.(); if (auto.give) autoGive(); }, '+=.3');
   }
 
   function finishGiving() {
     if (step !== 'give') return;
-    step = 'special';
+    step = 'special'; showSkip(false);
     $('#done').hidden = true;
     candies.forEach((c) => { if (!c.dataset.used) gsap.to(c, { opacity: .4, duration: .3 }); });
-    ({ spell: sortingHat, fiveyen: showYen, dragon: handMoment, glow: spriteSwarm })[VISITORS[vi].mech]();
+    ({ spell: sortingHat, fiveyen: showYen, dragon: handMoment, glow: spriteSwarm, brothers: brothersMoment, smash: smashMoment, serenade: serenadeMoment, niffler: nifflerCoin, clover: grimoireMoment })[VISITORS[vi].mech]();
   }
   function afterSpecial() {
     const V = VISITORS[vi];
@@ -609,16 +869,16 @@
     step = 'card';
   }
   /* ================= swipe through the collection ================= */
-  const toyOf = (i) => (i === 4 ? GOLDEN : VISITORS[i]);
+  const toyOf = (i) => (i === N ? GOLDEN : VISITORS[i]);
   let cardList = [], albumList = [];
   function fillCard(root, idx, list) {
     const V = toyOf(idx), q = (x) => root.querySelector(x);
     root.dataset.idx = idx;
     q('.band').style.background = V.band; q('.series').textContent = `${V.series} x`;
     q('.toyHold').innerHTML = ART.toy(V.toy); q('h3').textContent = V.toyName;
-    q('.numTxt').textContent = idx === 4 ? 'Secret #5 of 5' : `#${idx + 1} of 5 · Collect them all!`;
-    q('.dots').innerHTML = [0, 1, 2, 3, 4].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
-    q('.note').textContent = (STORY.notes || [])[idx] || '';
+    q('.numTxt').textContent = idx === N ? `Secret #${N + 1} of ${N + 1}` : `#${idx + 1} of ${N + 1} · Collect them all!`;
+    q('.dots').innerHTML = [...Array(N + 1).keys()].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
+    q('.note').textContent = (STORY.notes || {})[V.toy] || '';
     q('.swipeHint').hidden = list.length < 2;
     if (root.id === 'card') $('#keep').textContent = idx === boxing.idx ? 'Add to my collection' : 'Back to my new toy';
   }
@@ -668,9 +928,17 @@
     else if (k === 'neytiri') { sfx.chime(); gsap.fromTo(q('[id$="-glow"]'), { opacity: .2 }, { opacity: 1, duration: .4, yoyo: true, repeat: 3 }); }
     else if (k === 'yato') { sfx.pop(); const c = q('[id$="-coin"]'); gsap.set(c, { opacity: 1 });
       gsap.fromTo(c, { y: 0, scaleX: 1 }, { y: -60, scaleX: -1, svgOrigin: '40 200', duration: .35, yoyo: true, repeat: 1, ease: 'power2.out', onComplete: () => gsap.to(c, { opacity: 0, delay: .5 }) }); }
+    else if (k === 'tanjiro') { sfx.chime(); const w = q('[id$="-water"]'); gsap.set(w, { opacity: 1 }); gsap.fromTo(w.querySelectorAll('ellipse'), { strokeDashoffset: 0 }, { strokeDashoffset: -300, duration: 1.4, ease: 'power1.out', onComplete: () => gsap.to(w, { opacity: 0, duration: .4 }) }); }
+    else if (k === 'deku') { sfx.zap(); gsap.fromTo(q('[id$="-bolts"]'), { opacity: 1 }, { opacity: 0, duration: .12, yoyo: true, repeat: 7, onComplete() { gsap.set(this.targets(), { opacity: 0 }); } }); }
+    else if (k === 'niffler') { sfx.giggle(); gsap.fromTo(svg, { rotation: -10 }, { rotation: 10, duration: .08, yoyo: true, repeat: 7, onComplete: () => gsap.set(svg, { rotation: 0 }) }); gsap.fromTo(q('[id$="-coins"]'), { opacity: 1 }, { opacity: 0, duration: 1.2, delay: .5 }); }
+    else if (k === 'asta') { sfx.boom(); gsap.fromTo(q('[id$="-sword"]'), { rotation: 0 }, { rotation: 70, svgOrigin: '42 194', duration: .18, yoyo: true, repeat: 1, ease: 'power2.out' }); }
+    else if (k === 'dante') { sfx.strum(); gsap.fromTo(q('[id$="-alebrije"]'), { opacity: 1 }, { opacity: 0, duration: 1.6, delay: .6 }); }
     else if (k === 'golden') { sfx.burst(); gsap.fromTo(svg, { rotationY: 0 }, { rotationY: 360, duration: 1 }); hearts(center(svg), 12, 6.3, 60, ['#ffd25e', '#fff0a8', '#ff8fbd']); }
   }
   const magicLine = { candles: 'They left floating candles in your hallway.', charm: 'Yato left a lucky charm on your wall.',
+    wisteria: 'They hung wisteria in your hallway. No demons tonight.', scorch: 'Bakugo left a scorch mark on your wall. It\'s... shaped like a heart?',
+    marigolds: 'They left marigolds by your door, so everyone who loves you can find their way here.', pickett: 'Pickett the Bowtruckle decided to live on your picture frame.',
+    bulls: 'The Black Bulls hung their banner. You\'re officially one of them.',
     dragon: 'A dragon-scale garland... and your lamp is glowing blue.', pandora: 'Glowing Pandora plants just bloomed in your hallway.' };
   function keep() {
     if (step !== 'card') return;
@@ -682,26 +950,44 @@
     tl.to('#card', { opacity: 0, x: 140, y: -40 + idx * 40, scale: .1, rotation: 20, duration: .65, ease: 'power3.in' })
       .set('#card', { visibility: 'hidden', x: 0, y: 0, rotation: 0 })
       .to('#unbox', { autoAlpha: 0, duration: .4 }, '<.3');
-    if (idx === 4) { tl.add(showFinal); return; }
+    if (idx === N) { tl.add(showFinal); return; }
     tl.add(() => { placeToy(idx, V.toy, true); sfx.pop(); })
       .add(() => V.bye.forEach((x, i) => gsap.delayedCall(i * 1.3, () => line(x, 1.8))), '+=.4')
       .add(() => actors.forEach((a) => gsap.killTweensOf(a.el)), '+=2.6')
       .add(() => actors.forEach((a, i) => gsap.to(a.el, { y: -150, scale: .3, opacity: 0, duration: 1.3, ease: 'power1.in', delay: i * .12 })))
       .add(() => sfx.creak(), '+=1.2')
+      .add(() => nextVisitor(idx));
+  }
+  /* door shuts, their magic stays, the clock moves on, the next knock */
+  function nextVisitor(idx, skipped) {
+    const V = VISITORS[idx]; removeNiff();
+    gsap.timeline()
       .to('#door', { rotationY: 0, duration: 1, ease: 'power3.inOut' })
       .to('#roomFog', { opacity: 0, duration: .8 }, '<')
-      .add(() => { MAGIC[V.magic](true); sfx.magic(); setClock(hour + 1); cap(magicLine[V.magic]); })
+      .add(() => { MAGIC[V.magic](true); sfx.magic(); setClock(hour + .5); cap(skipped ? `They left your toy on the doorstep. ${magicLine[V.magic]}` : magicLine[V.magic]); })
       .add(() => {
         const n = idx + 1;
-        if (n < 4) { setupVisitor(n); gsap.delayedCall(2.8, () => cap(`${n} of 4 visitors. Someone else is coming up the walk...`)); gsap.delayedCall(4.4, ring); }
+        if (n < N) { setupVisitor(n); gsap.delayedCall(2.8, () => cap(`${n} of ${N} visitors. Someone else is coming up the walk...`)); gsap.delayedCall(4.4, ring); }
         else { setupFinale(); gsap.delayedCall(3, () => cap('The street is getting quiet...')); gsap.delayedCall(4.6, ring); }
         step = 'wait';
       }, '+=.6');
   }
+  /* skip a visit: she still gets their toy and their magic, just faster */
+  function showSkip(on) { $('#skip').hidden = !on || vi >= N; }
+  function skipVisit() {
+    if (!['ring', 'give'].includes(step) || vi >= N) return;
+    const was = step; step = 'skipping'; showSkip(false);
+    gsap.killTweensOf('#hint'); gsap.to('#hint', { opacity: 0, duration: .2 }); gsap.killTweensOf('#peepCast');
+    $('#done').hidden = true; $$('#bubbles .bub').forEach((b) => gsap.to(b, { opacity: 0, duration: .2 }));
+    gsap.to(world, { scale: 1, duration: .6 });
+    candies.forEach((c) => gsap.to(c, { opacity: 0, duration: .3 }));
+    if (was === 'give') actors.forEach((a, i) => { gsap.killTweensOf(a.el); gsap.to(a.el, { y: -150, scale: .3, opacity: 0, duration: .9, ease: 'power1.in', delay: i * .08 }); });
+    gsap.delayedCall(was === 'give' ? 1.1 : .3, () => { placeToy(vi, VISITORS[vi].toy, true); sfx.pop(); nextVisitor(vi, true); });
+  }
 
   /* ================= finale ================= */
   function setupFinale() {
-    vi = 4; actors = []; $('#cast').innerHTML = ''; $('#bubbles').innerHTML = '';
+    vi = N; actors = []; removeNiff(); $('#cast').innerHTML = ''; $('#bubbles').innerHTML = '';
     candies.forEach((c) => gsap.to(c, { opacity: 0, duration: .4, onComplete: () => c.remove() })); candies = [];
     $('#peepCast').innerHTML = `<svg viewBox="0 0 50 70" style="width:46px"><path d="M25 0 v12" stroke="#000" stroke-width="3"/><path d="M25 66 C-8 42 4 12 25 26 C46 12 58 42 25 66Z" fill="#000"/></svg>`;
   }
@@ -723,8 +1009,10 @@
     [...'HAPPY BIRTHDAY'].forEach((ch, i) => { const x = 22 + i * 26.6, y = 4 + 36 * (x / 390) * (1 - x / 390) * 2; if (ch === ' ') return;
       bf.insertAdjacentHTML('beforeend', `<g class="pen" transform="translate(${x} ${y})"><path d="M-12 0 L12 0 L12 22 L0 30 L-12 22Z" fill="${['#ff8fbd', '#ffd25e', '#a8ecd6', '#c7a6ff', '#ff9a52'][i % 5]}" stroke="#2e2148" stroke-width="2"/><text x="0" y="17" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="13" fill="#2e2148">${ch}</text></g>`); });
     const crowd = $('#crowd'); crowd.innerHTML = '';
-    [['hermione', 2, 0], ['harry', 78, -6], ['ron', 154, 0], ['yato', 230, -6], ['hiccup', 304, 0],
-     ['kiri', -10, 92], ['jake', 62, 82], ['toothless', 140, 96, 108], ['neytiri', 244, 82], ['tuk', 318, 100, 74]].forEach(([n, x, y, w]) => {
+    [['sanemi', -8, -30], ['genya', 35, -34], ['newt', 78, -30], ['tina', 121, -34], ['hector', 164, -30], ['maria', 207, -34], ['yuno', 250, -30], ['yami', 293, -34], ['magna', 336, -30],
+     ['hermione', -14, 48], ['harry', 29, 44], ['ron', 72, 48], ['jacob', 115, 44], ['queenie', 158, 48], ['manolo', 201, 44], ['bakugo', 244, 48], ['yato', 287, 44], ['hiccup', 330, 48],
+     ['kiri', -18, 124], ['tanjiro', 22, 128], ['miguel', 62, 132], ['deku', 262, 132], ['asta', 302, 128], ['jake', 342, 124],
+     ['neytiri', -20, 196, 78], ['toothless', 40, 214, 84], ['tuk', 270, 214, 64], ['niffler', 320, 236, 60], ['dante', 352, 222, 56]].forEach(([n, x, y, w]) => {
       const el = document.createElement('div'); el.className = 'actor'; el.style.cssText = `left:${x}px;top:${y}px${w ? `;width:${w}px` : ''}`;
       el.innerHTML = ART.char(n, `pt${n}`); crowd.appendChild(el); });
     $$('#crowd [id$="-glow"]').forEach((g) => gsap.set(g, { opacity: .9 }));
@@ -815,12 +1103,13 @@
     confetti(50, 195, 400);
     gsap.to('#invite', { opacity: 0, scale: 1.2, duration: .5, delay: .6, onComplete: () => gsap.set('#invite', { visibility: 'hidden' }) });
     gsap.delayedCall(1.6, () => bigSay('One more box...', 1.6));
-    gsap.delayedCall(3, () => unbox(GOLDEN, 4));
+    gsap.delayedCall(3, () => unbox(GOLDEN, N));
   }
   function showFinal() {
     step = 'final';
     const all = $('#shelfAll'); all.innerHTML = '';
     [...VISITORS.map((V) => V.toy), 'golden'].forEach((k) => { const d = document.createElement('div'); d.innerHTML = ART.toy(k); d.addEventListener('click', () => gimmick(d.querySelector('.toyfig'))); all.appendChild(d); });
+    $('#final .complete').textContent = `Complete set! ${N + 1} of ${N + 1}`;
     gsap.set('#final', { visibility: 'visible' });
     gsap.fromTo('#final', { opacity: 0 }, { opacity: 1, duration: .8 });
     gsap.from('#shelfAll > div', { scale: 0, duration: .5, stagger: .12, ease: 'back.out(2.5)', delay: .6 });
@@ -828,7 +1117,7 @@
   }
 
   /* ================= intro ================= */
-  $('#introCast').innerHTML = ['hermione', 'harry', 'yato', 'toothless', 'neytiri'].map((n) => ART.char(n, 'in' + n)).join('');
+  $('#introCast').innerHTML = ['hermione', 'tanjiro', 'yato', 'toothless', 'deku', 'miguel', 'asta', 'neytiri'].map((n) => ART.char(n, 'in' + n)).join('');
   $$('#introCast [id$="-glow"]').forEach((g) => gsap.set(g, { opacity: .8 }));
   const tt = $('#introTitle'); tt.innerHTML = [...tt.textContent].map((ch) => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   gsap.from('#introTitle span', { y: -30, opacity: 0, duration: .6, stagger: .05, ease: 'back.out(3)' });
@@ -839,7 +1128,7 @@
     audioInit(); $('#mute').hidden = false;
     gsap.to('#intro', { opacity: 0, duration: .8, onComplete: () => { $('#intro').hidden = true; } });
     setupVisitor(0);
-    cap('7pm. Get comfy. Someone is coming up the walk...');
+    cap('6:30pm. Get comfy. Someone is coming up the walk...');
     gsap.delayedCall(2.4, ring);
   }
 
@@ -849,6 +1138,10 @@
   key($('#door'), () => (step === 'ring' ? openDoor() : null));
   $('#done').addEventListener('click', () => (step === 'outside' ? goOutside() : finishGiving()));
   $('#handBtn').addEventListener('click', touch);
+  $('#skip').addEventListener('click', skipVisit);
+  { const sb = $('#smashBtn'); sb.addEventListener('pointerdown', chargeStart); ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => sb.addEventListener(ev, chargeStop));
+    sb.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); smash(); } }); }
+  $('#strumBtn').addEventListener('click', strum);
   key($('#yen'), flipYen); key($('#boxHold'), openBox); key($('#cake'), blow);
   $('#keep').addEventListener('click', keep);
   $('#letterNext').addEventListener('click', showInvite);
@@ -858,7 +1151,9 @@
   /* ================= preview jumps: #k1..#k5 (+ -open / -give / -card); #party #letter #invite #final ================= */
   const auto = {};
   function autoGive() {
-    const plan = { spell: [['hermione'], ['harry'], ['ron', 'frog']], fiveyen: [['yato'], ['yato']], dragon: [['toothless', 'choc'], ['toothless', 'fish'], ['hiccup', 'lolli']], glow: [['tuk'], ['jake'], ['neytiri'], ['kiri'], ['tuk']] }[VISITORS[vi].mech];
+    const plan = { spell: [['hermione'], ['harry'], ['ron', 'frog']], fiveyen: [['yato'], ['yato']], dragon: [['toothless', 'choc'], ['toothless', 'fish'], ['hiccup', 'lolli']], glow: [['tuk'], ['jake'], ['neytiri'], ['kiri'], ['tuk']],
+      brothers: [['sanemi'], ['genya'], ['tanjiro']], smash: [['bakugo'], ['deku'], ['bakugo']], serenade: [['miguel'], ['hector'], ['manolo'], ['maria']],
+      niffler: [['newt'], ['queenie'], ['jacob'], ['tina']], clover: [['asta'], ['yuno'], ['magna'], ['yami']] }[VISITORS[vi].mech];
     plan.forEach(([n, kind], i) => gsap.delayedCall(.6 + i * 1.4, () => {
       const c = candies.find((x) => !x.dataset.used && !x.dataset.flying && (!kind || x.dataset.kind === kind));
       const tg = targets().find((x) => x.a.name === n); if (c && tg) fly(c, tg);
@@ -866,17 +1161,17 @@
     if (auto.card) gsap.delayedCall(.6 + plan.length * 1.4 + 2.4, finishGiving);
   }
   const h = (location.hash || '').slice(1);
-  const m = h.match(/^k([1-5])(?:-(open|give|card))?$/);
+  const m = h.match(/^k(\d+)(?:-(open|give|card))?$/);
   if (m || ['party', 'letter', 'invite', 'final'].includes(h)) {
     $('#intro').hidden = true; $('#mute').hidden = false;
     gsap.ticker.lagSmoothing(0);
-    const k = m ? +m[1] - 1 : 4;
-    for (let i = 0; i < Math.min(k, 4); i++) { placeToy(i, VISITORS[i].toy); MAGIC[VISITORS[i].magic](false); }
-    setClock(7 + Math.min(k, 4), false);
+    const k = m ? Math.min(+m[1] - 1, N) : N;
+    for (let i = 0; i < k; i++) { placeToy(i, VISITORS[i].toy); MAGIC[VISITORS[i].magic](false); }
+    setClock(START + k * .5, false);
     const lvl = m ? m[2] : h, order = ['open', 'give', 'card', 'party', 'letter', 'invite', 'final'];
     order.slice(0, order.indexOf(lvl) + 1).forEach((x) => { auto[x] = true; });
     if (!m) auto.open = true;
-    if (k < 4) setupVisitor(k); else setupFinale();
+    if (k < N) setupVisitor(k); else setupFinale();
     gsap.delayedCall(.6, ring);
     $('#mock').textContent = 'Mock · preview ' + h;
   }

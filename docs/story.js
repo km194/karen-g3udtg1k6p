@@ -15,15 +15,20 @@ window.STORY = {
   // (Wikimedia Commons, "Happy Birthday to You.ogg"). Leave '' for no song.
   birthdaySong: 'happy-birthday.mp3',
 
-  // One sweet note per toy, in order: Harry Potter, Noragami, How to Train Your Dragon,
-  // Avatar, and the secret golden toy from you. These are drafts: make them yours.
-  notes: [
-    'The Sorting Hat didn\'t even have to think. Smartest girl I know, and you never show off about it.',
-    'Yato will grant any wish for five yen. I didn\'t need him. I already got mine when I met you.',
-    'Toothless only lets a few people get close. I get it now. You\'re one of mine.',
-    'On Pandora, "I see you" means "I understand you." I see you, Karen. All of you.',
-    'The rarest one in the set. Only one exists, just like you. Happy birthday.'
-  ],
+  // One sweet note per toy. Each one shows up on that toy's collector card.
+  // These are drafts: make them yours.
+  notes: {
+    harry:     'The Sorting Hat didn\'t even have to think. Smartest girl I know, and you never show off about it.',
+    yato:      'Yato will grant any wish for five yen. I didn\'t need him. I already got mine when I met you.',
+    tanjiro:   'Tanjiro can smell kindness from a mile away. He\'d find you in a second.',
+    toothless: 'Toothless only lets a few people get close. I get it now. You\'re one of mine.',
+    deku:      'Deku became a hero just by being kind. You do that every day without trying.',
+    dante:     'In Coco, nobody is really gone as long as someone remembers them. I\'m never forgetting a single day with you.',
+    niffler:   'A Niffler always goes straight for the most precious thing in the room. He went straight for you.',
+    asta:      'Surpass your limits this year. I\'ll be cheering louder than Asta.',
+    neytiri:   'On Pandora, "I see you" means "I understand you." I see you, Karen. All of you.',
+    golden:    'The rarest one in the set. Only one exists, just like you. Happy birthday.'
+  },
 
   // Your letter. Each line in quotes is one paragraph.
   letter: [
