@@ -142,9 +142,9 @@
       g.insertAdjacentHTML('beforeend', `<path d="M0 0 L${Math.cos(a) * 150} ${Math.sin(a) * 150} L${Math.cos(b) * 150} ${Math.sin(b) * 150}Z"/>`); } }
   /* the display case: one slot per visitor (2 per shelf), the last one a secret */
   const slots = [];
-  for (let i = 0; i < 6; i++) {
-    const s = document.createElement('div'); s.className = 'cslot two'; s.style.top = (18 + Math.floor(i / 2) * 84) + 'px'; s.style.left = (i % 2 ? 37 : 3) + 'px';
-    s.innerHTML = `<div class="lit"></div>${i === 5 ? '<span class="q">?</span>' : ''}`;
+  for (let i = 0; i < 7; i++) {  // 6 toys + the golden secret, centred on the bottom shelf
+    const s = document.createElement('div'); s.className = 'cslot two'; s.style.top = (14 + Math.floor(i / 2) * 80) + 'px'; s.style.left = (i === 6 ? 20 : i % 2 ? 37 : 3) + 'px';
+    s.innerHTML = `<div class="lit"></div>${i === 6 ? '<span class="q">?</span>' : ''}`;
     s.addEventListener('click', () => { if (s.querySelector('.toyfig')) openAlbum(i); });
     $('#caseSlots').appendChild(s); slots.push(s);
   }
@@ -228,7 +228,8 @@
       peep: 'Ding-dong! A shadow in a tracksuit... and one with fox ears.',
       greet: ['yato.g', 'nan.g', 'tom.g'],
       cap: 'Two gods and a fox. Yato doesn\'t get treats often.',
-      gift: ['yato.gift'], bye: ['yato.bye', 'nan.bye'] },
+      gift: ['yato.gift'], bye: ['yato.bye', 'nan.bye'],
+      bonus: { series: 'Kamisama Kiss', world: 'kiss', box: 'KAMISAMA KISS', band: '#8a5ac8', toy: 'tomoe', toyName: 'Tomoe with glowing fox fire', gift: ['nan.gift'] } },
     { series: 'Demon Slayer', world: 'slayer', box: 'DEMON SLAYER', band: '#1f7a56', toy: 'tanjiro', toyName: 'Tanjiro with Water Breathing swirl',
       layout: 'trio', cast: ['sanemi', 'tanjiro', 'genya'], mech: 'brothers', magic: 'wisteria',
       peep: 'Ding-dong! Three shadows... and two of them are standing very far apart.',
@@ -249,7 +250,11 @@
       gift: ['ney.gift'], bye: ['tuk.bye', 'kiri.bye'] }
   ];
   const PAW = '<svg class="paw" viewBox="0 0 24 24" aria-hidden="true"><g fill="#2e2148"><ellipse cx="12" cy="16" rx="6" ry="5"/><ellipse cx="5" cy="9.5" rx="2.4" ry="3"/><ellipse cx="9.5" cy="5.5" rx="2.4" ry="3"/><ellipse cx="14.5" cy="5.5" rx="2.4" ry="3"/><ellipse cx="19" cy="9.5" rx="2.4" ry="3"/></g></svg>';
-  const N = VISITORS.length;  // the golden secret toy is index N
+  const N = VISITORS.length;
+  // toys: each visit gives one, a visit with a `bonus` gives a second; the golden secret toy is index NT
+  const TOYS = VISITORS.flatMap((V) => (V.bonus ? [V, V.bonus] : [V])), NT = TOYS.length;
+  const toyAt = (i) => TOYS.indexOf(VISITORS[i]);
+  const placeVisit = (i, animate) => { const V = VISITORS[i], t = toyAt(i); placeToy(t, V.toy, animate); if (V.bonus) placeToy(t + 1, V.bonus.toy, animate); };
   const GOLDEN = { series: 'Birthday Edition', world: 'golden', box: 'BIRTHDAY EDITION', band: '#d99a1a', toy: 'golden', toyName: 'Secret golden birthday heart' };
   const LAYOUT = {
     solo: [[30, 168, 150]], duo: [[-6, 196, 124], [86, 178, 136]],
@@ -767,7 +772,7 @@
   function afterSpecial() {
     const V = VISITORS[vi];
     V.gift.forEach((x, i) => gsap.delayedCall(i * .8, () => line(x, 2.4)));
-    gsap.delayedCall(Math.max(1.4, lineLen(V.gift[0]) + .4), () => unbox(V, vi));
+    gsap.delayedCall(Math.max(1.4, lineLen(V.gift[0]) + .4), () => unbox(V, toyAt(vi)));
   }
 
   /* Harry Potter: the Sorting Hat */
@@ -879,15 +884,15 @@
     step = 'card';
   }
   /* ================= swipe through the collection ================= */
-  const toyOf = (i) => (i === N ? GOLDEN : VISITORS[i]);
+  const toyOf = (i) => (i === NT ? GOLDEN : TOYS[i]);
   let cardList = [], albumList = [];
   function fillCard(root, idx, list) {
     const V = toyOf(idx), q = (x) => root.querySelector(x);
     root.dataset.idx = idx;
     q('.band').style.background = V.band; q('.series').textContent = `${V.series} x`;
     q('.toyHold').innerHTML = ART.toy(V.toy); q('h3').textContent = V.toyName;
-    q('.numTxt').textContent = idx === N ? `Secret #${N + 1} of ${N + 1}` : `#${idx + 1} of ${N + 1} · Collect them all!`;
-    q('.dots').innerHTML = [...Array(N + 1).keys()].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
+    q('.numTxt').textContent = idx === NT ? `Secret #${NT + 1} of ${NT + 1}` : `#${idx + 1} of ${NT + 1} · Collect them all!`;
+    q('.dots').innerHTML = [...Array(NT + 1).keys()].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
     { const nt = q('.note'), parts = ((STORY.notes || {})[V.toy] || '').split('{paw}'); nt.textContent = '';  // {paw} draws a little paw print
       parts.forEach((t, i) => { if (i) nt.insertAdjacentHTML('beforeend', PAW + PAW); nt.appendChild(document.createTextNode(t)); });
       // the "— names" signature sits on its own line
@@ -950,6 +955,7 @@
     else if (k === 'asta') { sfx.boom(); gsap.fromTo(q('[id$="-sword"]'), { rotation: 0 }, { rotation: 70, svgOrigin: '50 232', duration: .18, yoyo: true, repeat: 1, ease: 'power2.out' }); }
     else if (k === 'manolo') { sfx.strum(); petals(center(svg), 10); }
     else if (k === 'calcifer') { sfx.burst(); gsap.fromTo(q('[id$="-flame"]'), { scale: 1 }, { scale: 1.35, svgOrigin: '100 276', duration: .25, yoyo: true, repeat: 3, ease: 'power2.out' }); }
+    else if (k === 'tomoe') { sfx.chime(); gsap.fromTo(q('[id$="-fire"]'), { scale: 1, opacity: .9 }, { scale: 1.6, opacity: 1, svgOrigin: '22 214', duration: .3, yoyo: true, repeat: 3, ease: 'power2.out' }); }
     else if (k === 'golden') { sfx.burst(); gsap.fromTo(svg, { rotationY: 0 }, { rotationY: 360, duration: 1 }); hearts(center(svg), 12, 6.3, 60, ['#ffd25e', '#fff0a8', '#ff8fbd']); }
   }
   const magicLine = { candles: 'They left floating candles in your hallway.', charm: 'Yato left a lucky charm on your wall.',
@@ -961,19 +967,24 @@
     if (step !== 'card') return;
     if (+$('#card').dataset.idx !== boxing.idx) return flip($('#card'), cardList, boxing.idx);
     step = 'bye';
-    const { V, idx } = boxing;
+    const { idx } = boxing, toy = boxing.V, V = VISITORS[vi];
     gsap.killTweensOf('#rays');
     const tl = gsap.timeline();
     tl.to('#card', { opacity: 0, x: 140, y: -40 + idx * 40, scale: .1, rotation: 20, duration: .65, ease: 'power3.in' })
       .set('#card', { visibility: 'hidden', x: 0, y: 0, rotation: 0 })
       .to('#unbox', { autoAlpha: 0, duration: .4 }, '<.3');
-    if (idx === N) { tl.add(showFinal); return; }
-    tl.add(() => { placeToy(idx, V.toy, true); sfx.pop(); })
+    if (idx === NT) { tl.add(showFinal); return; }
+    tl.add(() => { placeToy(idx, toy.toy, true); sfx.pop(); });
+    if (toy === V && V.bonus) {  // a second box from the same visit
+      tl.add(() => { V.bonus.gift.forEach((x) => line(x, 2.4)); gsap.delayedCall(Math.max(1.4, lineLen(V.bonus.gift[0]) + .4), () => unbox(V.bonus, idx + 1)); }, '+=.4');
+      return;
+    }
+    tl
       .add(() => V.bye.forEach((x, i) => gsap.delayedCall(i * 1.3, () => line(x, 1.8))), '+=.4')
       .add(() => actors.forEach((a) => gsap.killTweensOf(a.el)), '+=2.6')
       .add(() => actors.forEach((a, i) => gsap.to(a.el, { y: -150, scale: .3, opacity: 0, duration: 1.3, ease: 'power1.in', delay: i * .12 })))
       .add(() => sfx.creak(), '+=1.2')
-      .add(() => nextVisitor(idx));
+      .add(() => nextVisitor(vi));
   }
   /* door shuts, their magic stays, the clock moves on, the next knock */
   function nextVisitor(idx, skipped) {
@@ -999,7 +1010,7 @@
     gsap.to(world, { scale: 1, duration: .6 });
     candies.forEach((c) => gsap.to(c, { opacity: 0, duration: .3 }));
     if (was === 'give') actors.forEach((a, i) => { gsap.killTweensOf(a.el); gsap.to(a.el, { y: -150, scale: .3, opacity: 0, duration: .9, ease: 'power1.in', delay: i * .08 }); });
-    gsap.delayedCall(was === 'give' ? 1.1 : .3, () => { placeToy(vi, VISITORS[vi].toy, true); sfx.pop(); nextVisitor(vi, true); });
+    gsap.delayedCall(was === 'give' ? 1.1 : .3, () => { placeVisit(vi, true); sfx.pop(); nextVisitor(vi, true); });
   }
 
   /* ================= finale ================= */
@@ -1119,13 +1130,13 @@
     confetti(50, 195, 400);
     gsap.to('#invite', { opacity: 0, scale: 1.2, duration: .5, delay: .6, onComplete: () => gsap.set('#invite', { visibility: 'hidden' }) });
     gsap.delayedCall(1.6, () => bigSay('One more box...', 1.6));
-    gsap.delayedCall(3, () => unbox(GOLDEN, N));
+    gsap.delayedCall(3, () => unbox(GOLDEN, NT));
   }
   function showFinal() {
     step = 'final';
     const all = $('#shelfAll'); all.innerHTML = '';
-    [...VISITORS.map((V) => V.toy), 'golden'].forEach((k) => { const d = document.createElement('div'); d.innerHTML = ART.toy(k); d.addEventListener('click', () => gimmick(d.querySelector('.toyfig'))); all.appendChild(d); });
-    $('#final .complete').textContent = `Complete set! ${N + 1} of ${N + 1}`;
+    [...TOYS.map((V) => V.toy), 'golden'].forEach((k) => { const d = document.createElement('div'); d.innerHTML = ART.toy(k); d.addEventListener('click', () => gimmick(d.querySelector('.toyfig'))); all.appendChild(d); });
+    $('#final .complete').textContent = `Complete set! ${NT + 1} of ${NT + 1}`;
     gsap.set('#final', { visibility: 'visible' });
     gsap.fromTo('#final', { opacity: 0 }, { opacity: 1, duration: .8 });
     gsap.from('#shelfAll > div', { scale: 0, duration: .5, stagger: .12, ease: 'back.out(2.5)', delay: .6 });
@@ -1182,7 +1193,7 @@
     $('#intro').hidden = true; $('#mute').hidden = false;
     gsap.ticker.lagSmoothing(0);
     const k = m ? Math.min(+m[1] - 1, N) : N;
-    for (let i = 0; i < k; i++) { placeToy(i, VISITORS[i].toy); MAGIC[VISITORS[i].magic](false); }
+    for (let i = 0; i < k; i++) { placeVisit(i); MAGIC[VISITORS[i].magic](false); }
     setClock(START + k * .5, false);
     const lvl = m ? m[2] : h, order = ['open', 'give', 'card', 'party', 'letter', 'invite', 'final'];
     order.slice(0, order.indexOf(lvl) + 1).forEach((x) => { auto[x] = true; });

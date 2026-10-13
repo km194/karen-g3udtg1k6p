@@ -42,6 +42,7 @@ window.LINES = {
   'tom.2': ['tomoe', "Don't tell anyone a fox likes sweets."],
   'tom.3': ['tomoe', 'Fine. Thank you, {name}.'],
   'nan.bye': ['nanami', 'Bye, {name}! Happy birthday!'],
+  'nan.gift': ['nanami', 'Wait, one more! This one is from me and Tomoe.'],
 
   'hic.g': ['hiccup', "Trick or treat! Don't worry, he's friendly."],
   'hic.fish': ['hiccup', 'He only eats fish. Got any fish?'],

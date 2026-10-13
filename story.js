@@ -20,6 +20,7 @@ window.STORY = {
   notes: {
     harry:     'Happy birthday from Gryffindor to our favorite Ravenclaw! Ron ate half your candy. Sorry. — Harry, Ron & Hermione',
     yato:      'Happy birthday, Karen! I put your name on my shrine. It\'s a very small shrine. It\'s a bottle cap. But it\'s yours. — Yato',
+    tomoe: 'Happy birthday, Karen! Tomoe said he didn\'t care, then spent an hour picking this one out. — Nanami & Tomoe',
     tanjiro:   'Happy birthday, Karen! You got two brothers to stand side by side. That\'s real magic. You smell like kindness, by the way. — Tanjiro, Genya & (grumpily) Sanemi',
     toothless: 'Happy birthday, Karen! Toothless wanted to bring you a fish. I talked him out of it. You\'re welcome. — Hiccup & Toothless {paw}',
     neytiri:   'Happy birthday, Karen! The whole forest glowed for you tonight. That doesn\'t happen for just anyone. — Jake, Neytiri, Kiri & Tuk',

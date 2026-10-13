@@ -211,7 +211,7 @@
     <path d="M30 120 Q28 50 100 44 Q172 50 170 120 L164 100 L156 128 L146 92 L136 120 L124 88 L112 116 L100 86 L88 116 L76 88 L64 120 L54 92 L44 128 L36 100Z" fill="url(#${p}-hr)" ${st(4.5)}/>
     <path d="M32 110 Q22 150 36 186 L44 148Z M168 110 Q178 150 164 186 L156 148Z" fill="url(#${p}-hr)" ${st(4)}/>
     ${face(p, { dark: '#5a3a9a', light: '#c7a6ff', kind: 'calm', mouth: 'flat', blush: .4 })}
-    <g opacity=".9"><path d="M22 214 Q8 194 22 176 Q22 192 32 194 Q40 210 22 214Z" fill="#b89aff" ${st(2.5)}/><path d="M22 208 Q16 198 22 190 Q24 198 28 200 Q30 206 22 208Z" fill="#efe6ff"/></g>
+    <g id="${p}-fire" opacity=".9"><path d="M22 214 Q8 194 22 176 Q22 192 32 194 Q40 210 22 214Z" fill="#b89aff" ${st(2.5)}/><path d="M22 208 Q16 198 22 190 Q24 198 28 200 Q30 206 22 208Z" fill="#efe6ff"/></g>
     ${bag(p, 'R', BAG.lantern())}`;
 
   /* ================= How to Train Your Dragon ================= */
@@ -663,9 +663,11 @@
     castle: `<g transform="translate(70 26)"><path d="M-26 14 L-26 -10 L-14 -22 L-6 -12 L4 -30 L16 -14 L28 -20 L30 14Z" fill="#8a7a9a" ${st(3)}/><circle cx="-8" cy="-2" r="5" fill="#ffd98a" ${st(2)}/><path d="M10 -2 h10 v8 h-10z" fill="#5a4a6a"/><path d="M-22 14 l-4 10 M26 14 l4 10 M-6 14 l-2 10 M10 14 l2 10" ${st(3)}/></g>`,
     muertos: `<g transform="translate(70 28)"><ellipse cx="0" cy="0" rx="22" ry="24" fill="#f4f0e6" ${st(3)}/><circle cx="-8" cy="-2" r="6" fill="#ff6fa8"/><circle cx="8" cy="-2" r="6" fill="#5ac8fa"/>
       <path d="M-3 9 l3 -5 3 5z" fill="${INK}"/><path d="M-8 16 h16" ${st(2)}/>${[-26, 26, -18, 18].map((x, i) => `<circle cx="${x}" cy="${i < 2 ? -10 : -24}" r="6" fill="#ff9a2b" ${st(2)}/>`).join('')}</g>`,
+    kiss: `<g transform="translate(70 30)"><path d="M-20 -6 L-26 -36 L-6 -20Z M20 -6 L26 -36 L6 -20Z" fill="#fff" ${st(3)}/><path d="M-19 -12 L-22 -28 L-12 -19Z M19 -12 L22 -28 L12 -19Z" fill="#c7a6ff"/>
+      <path d="M-24 -8 Q-22 -24 0 -24 Q22 -24 24 -8 Q20 12 0 22 Q-20 12 -24 -8Z" fill="#fff" ${st(3)}/><path d="M-15 -6 q5 -6 10 0 M5 -6 q5 -6 10 0" fill="none" stroke="#d6322b" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="12" r="3" fill="${INK}"/></g>`,
     golden: `<g transform="translate(70 34)"><path d="M0 0 Q-30 -26 -38 -6 Q-30 10 0 0 Q30 10 38 -6 Q30 -26 0 0Z" fill="#ff6fa8" ${st(3)}/><circle r="7" fill="#ff3d8a" ${st(3)}/></g>`
   };
-  const BOXCOL = { hogwarts: ['#e8322e', '#c4262a'], shrine: ['#e8322e', '#c4262a'], dragon: ['#2f4a3a', '#24382c'], pandora: ['#2d6fa8', '#24578a'], slayer: ['#2a9a6e', '#1f7a56'], hero: ['#2d7a5a', '#1f5a42'], beasts: ['#8a5a33', '#6b4a33'], clover: ['#2a2a34', '#1a1a22'], muertos: ['#d6327a', '#b0255f'], castle: ['#3a5a8a', '#2a4470'], golden: ['#ffcf3a', '#e0a51a'] };
+  const BOXCOL = { hogwarts: ['#e8322e', '#c4262a'], shrine: ['#e8322e', '#c4262a'], dragon: ['#2f4a3a', '#24382c'], pandora: ['#2d6fa8', '#24578a'], slayer: ['#2a9a6e', '#1f7a56'], hero: ['#2d7a5a', '#1f5a42'], beasts: ['#8a5a33', '#6b4a33'], clover: ['#2a2a34', '#1a1a22'], muertos: ['#d6327a', '#b0255f'], castle: ['#3a5a8a', '#2a4470'], kiss: ['#9a6ad8', '#7a4cc0'], golden: ['#ffcf3a', '#e0a51a'] };
   function box(world, label) {
     const [a, b] = BOXCOL[world];
     return `<svg viewBox="0 -30 140 180" overflow="visible" aria-hidden="true">
