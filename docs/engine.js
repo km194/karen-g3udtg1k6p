@@ -1099,7 +1099,7 @@
   function showLetter() {
     step = 'letter';
     const box = $('#letterLines'); box.innerHTML = '';
-    (STORY.letter || []).forEach((t) => { const p = document.createElement('p'); p.textContent = t; box.appendChild(p); });
+    (STORY.letter || []).forEach((t) => { const p = document.createElement('p'); const k = t.slice(0, 2); if (k === '# ' || k === '! ') { p.className = k === '# ' ? 'ltitle' : 'lbig'; t = t.slice(2); } else if (t.includes('\n')) p.className = 'lpoem'; p.textContent = t; box.appendChild(p); });
     $('#letterSig').textContent = '— ' + (STORY.from || '');
     gsap.set('#letter', { visibility: 'visible' });
     gsap.fromTo('#letter', { opacity: 0, y: 60, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .8, ease: 'back.out(1.5)' });
