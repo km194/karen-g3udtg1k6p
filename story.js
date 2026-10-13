@@ -33,8 +33,8 @@ window.STORY = {
     'I just wanted to say thank you for being you. You make me feel safe, unjudged, and loved. I feel at home when I\'m with you.',
     '# Home',
     'I\'ve knocked on a lot of doors,\nbut none have felt like yours.\nYou welcomed every part of me,\nthe version no one else gets to see.',
-    'You never make me feel too much,\nyou calm my heart with just a touch.\nI don\'t have to try or hide;\nI feel at home when you\'re beside.',
-    'So here\'s the thing I want to say\non this, your very special day:\nwherever we go, whatever we roam,\nyou\'ll always be my home.',
+    'You never make me feel too much,\nyou calm my heart with just a touch.\nYou hear the things I never say,\nand somehow love me anyway.',
+    'So blow the candles, make a wish,\nbut first, just let me tell you this:\nwherever we go, whatever we roam,\nyou\'ll always be my home.',
     '! Happy 24th Birthday ML \u2665'
   ],
 
