@@ -106,6 +106,8 @@
     bouquet: () => `<path d="M-8 24 L0 -6 L8 24Z" fill="#9fd8a8" ${st(3)}/>${[[-10, -14, '#ff8fbd'], [8, -16, '#c7a6ff'], [0, -28, '#ffd25e'], [-14, -30, '#a8ecd6'], [14, -30, '#ff8fbd']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="9" fill="${c}" ${st(2.5)}/><circle cx="${x}" cy="${y}" r="3" fill="#fff"/>`).join('')}`,
     pan: () => `<path d="M14 0 L40 -10" stroke="#3a3a4a" stroke-width="6" stroke-linecap="round"/><ellipse cx="0" cy="2" rx="22" ry="14" fill="#3a3a4a" ${st(4)}/>
       <ellipse cx="-6" cy="0" rx="9" ry="6" fill="#fff"/><circle cx="-6" cy="0" r="3.5" fill="#ffcf3a"/><ellipse cx="8" cy="4" rx="8" ry="5" fill="#fff"/><circle cx="8" cy="4" r="3" fill="#ffcf3a"/>`,
+    lantern: () => `<path d="M0 -30 v-8" ${st(3)}/><rect x="-10" y="-31" width="20" height="6" rx="2" fill="${INK}"/><ellipse cx="0" cy="-4" rx="19" ry="23" fill="#e8463c" ${st(4)}/>
+      <path d="M-18 -12 Q0 -8 18 -12 M-19 0 Q0 4 19 0 M-17 10 Q0 14 17 10" fill="none" stroke="#b02a26" stroke-width="2.5"/><rect x="-10" y="17" width="20" height="6" rx="2" fill="${INK}"/>`,
     navi: (c1 = '#e8823e', c2 = '#4fc3c8') => `<path d="M-18 -14 Q0 -40 18 -14" fill="none" ${st(3.5)}/><path d="M-24 -14 h48 l-6 36 h-36z" fill="#c99a63" ${st(4)}/>
       <path d="M-22 -2 l7 6 7 -6 7 6 7 -6 7 6 7 -6" fill="none" stroke="${c1}" stroke-width="3.5"/><path d="M-20 12 h40" stroke="${c2}" stroke-width="4"/>`
   };
@@ -177,6 +179,40 @@
     <path d="M128 200 Q160 216 182 200 Q170 232 132 222Z" fill="#fff" ${st(4)}/><path d="M140 210 q14 6 28 0" fill="none" stroke="#d8dce8" stroke-width="2.5"/>
     <g id="${p}-coin" opacity="0"><circle cx="40" cy="200" r="13" fill="#f0c04a" ${st(3)}/><circle cx="40" cy="200" r="4" fill="#fff6ea" ${st(2)}/></g>
     ${bag(p, 'R', BAG.plastic())}`;
+
+  /* ================= Kamisama Kiss ================= */
+  const sleeves = (c) => `<path d="M60 200 Q36 208 32 246 L62 242Z M140 200 Q164 208 168 246 L138 242Z" fill="${c}" ${st(4)}/>`;
+  C.nanami = (p) => `
+    <defs>${grad(p + '-hr', '#c08a5a', '#7a4a2a')}</defs>
+    <path d="M24 128 Q12 40 100 32 Q188 40 176 128 Q184 168 168 196 L160 140 L40 140 L32 196 Q16 168 24 128Z" fill="url(#${p}-hr)" ${st(5)}/>
+    ${legs('#fff8f0', '#8a5a3a')}
+    <path d="M58 222 Q100 214 142 222 L154 274 Q100 284 46 274Z" fill="#d6322b" ${st(5)}/><path d="M80 226 l-6 48 M100 224 v52 M120 226 l6 48" stroke="#a8232e" stroke-width="3"/>
+    ${sleeves('#fff8f0')}
+    <path d="M60 196 Q100 186 140 196 L142 228 Q100 236 58 228Z" fill="#fff8f0" ${st(5)}/>
+    <path d="M86 196 L100 216 L114 196Z" fill="#d6322b"/><path d="M82 196 L100 224 L118 196" fill="none" ${st(3)}/>
+    ${headShape(SK)}
+    <path d="M30 118 Q28 50 100 44 Q172 50 170 118 Q160 92 146 98 Q138 80 122 92 Q112 74 100 90 Q88 74 78 92 Q62 80 54 98 Q40 92 30 118Z" fill="url(#${p}-hr)" ${st(4.5)}/>
+    ${shine('M64 58 Q86 48 108 52')}
+    <g transform="translate(150 90) rotate(30)"><rect x="-13" y="-4.5" width="26" height="9" rx="4.5" fill="#ff8fbd" ${st(2.5)}/><circle cx="-6" cy="0" r="2" fill="#fff"/></g>
+    ${face(p, { dark: '#7a4a2a', light: '#e8b47a', mouth: 'grin', blush: .65 })}
+    ${bag(p, 'R', BAG.beaded('#ff8fbd'))}`;
+
+  C.tomoe = (p) => `
+    <defs>${grad(p + '-hr', '#ffffff', '#c8c8de')}</defs>
+    <path d="M136 262 Q196 252 188 186 Q184 166 168 162 Q180 204 146 232Z" fill="url(#${p}-hr)" ${st(4)}/><path d="M182 180 Q186 168 176 164 Q178 176 172 182Z" fill="#c7a6ff"/>
+    <path d="M24 128 Q12 40 100 32 Q188 40 176 128 Q186 196 172 248 L160 140 L40 140 L28 248 Q14 196 24 128Z" fill="url(#${p}-hr)" ${st(5)}/>
+    <path d="M42 84 L30 14 L84 54Z M158 84 L170 14 L116 54Z" fill="url(#${p}-hr)" ${st(4.5)}/><path d="M46 70 L37 30 L68 54Z M154 70 L163 30 L132 54Z" fill="#c7a6ff"/>
+    ${legs('#5a3a8a', '#f4f4fa')}
+    <path d="M58 222 Q100 214 142 222 L154 274 Q100 284 46 274Z" fill="#6a4a9a" ${st(5)}/><path d="M80 226 l-6 48 M100 224 v52 M120 226 l6 48" stroke="#4a2e78" stroke-width="3"/>
+    ${sleeves('#f4f4fa')}
+    <path d="M60 196 Q100 186 140 196 L142 228 Q100 236 58 228Z" fill="#f4f4fa" ${st(5)}/>
+    <path d="M86 196 L100 216 L114 196Z" fill="#6a4a9a"/><path d="M82 196 L100 224 L118 196" fill="none" ${st(3)}/>
+    ${headShape(SK)}
+    <path d="M30 120 Q28 50 100 44 Q172 50 170 120 L164 100 L156 128 L146 92 L136 120 L124 88 L112 116 L100 86 L88 116 L76 88 L64 120 L54 92 L44 128 L36 100Z" fill="url(#${p}-hr)" ${st(4.5)}/>
+    <path d="M32 110 Q22 150 36 186 L44 148Z M168 110 Q178 150 164 186 L156 148Z" fill="url(#${p}-hr)" ${st(4)}/>
+    ${face(p, { dark: '#5a3a9a', light: '#c7a6ff', kind: 'calm', mouth: 'flat', blush: .4 })}
+    <g opacity=".9"><path d="M22 214 Q8 194 22 176 Q22 192 32 194 Q40 210 22 214Z" fill="#b89aff" ${st(2.5)}/><path d="M22 208 Q16 198 22 190 Q24 198 28 200 Q30 206 22 208Z" fill="#efe6ff"/></g>
+    ${bag(p, 'R', BAG.lantern())}`;
 
   /* ================= How to Train Your Dragon ================= */
   C.hiccup = (p) => `

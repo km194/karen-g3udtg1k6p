@@ -24,6 +24,8 @@ CAST = {
     'hermione': ('bf_emma', 1.05, 1.0),
     'hat':      ('bm_fable', 0.9, 0.8),
     'yato':     ('am_puck', 1.05, 1.0),
+    'nanami':   ('af_heart', 1.05, 1.08),
+    'tomoe':    ('am_onyx', 0.95, 1.0),
     'hiccup':   ('am_eric', 1.0, 1.05),
     'jake':     ('am_michael', 0.95, 1.0),
     'neytiri':  ('af_nova', 0.92, 1.0),
@@ -51,6 +53,8 @@ def main():
         text = text.replace('{name}', name)
         mp3, stamp = OUT / f'{lid}.mp3', OUT / f'{lid}.txt'
         if mp3.exists() and stamp.exists() and stamp.read_text() == text:
+            continue
+        if char not in CAST:  # unvoiced cast (Demon Slayer) shows text only
             continue
         voice, speed, pitch = CAST[char]
         lang = voice[0]

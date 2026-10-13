@@ -224,11 +224,11 @@
       cap: 'Tap a candy to cast a levitation spell, or drag it.',
       gift: ['hp.gift'], bye: ['hp.bye1', 'hp.bye2'] },
     { series: 'Noragami', world: 'shrine', box: 'NORAGAMI', band: '#c4262a', toy: 'yato', toyName: 'Yato with flipping 5-yen coin',
-      layout: 'solo', cast: ['yato'], mech: 'fiveyen', magic: 'charm',
-      peep: 'Ding-dong! A shadow in a tracksuit... and a scarf.',
-      greet: ['yato.g'],
-      cap: 'A stray god. He doesn\'t look like he gets treats often.',
-      gift: ['yato.gift'], bye: ['yato.bye'] },
+      layout: 'trio', cast: ['nanami', 'yato', 'tomoe'], mech: 'fiveyen', magic: 'charm',
+      peep: 'Ding-dong! A shadow in a tracksuit... and one with fox ears.',
+      greet: ['yato.g', 'nan.g', 'tom.g'],
+      cap: 'Two gods and a fox. Yato doesn\'t get treats often.',
+      gift: ['yato.gift'], bye: ['yato.bye', 'nan.bye'] },
     { series: 'Demon Slayer', world: 'slayer', box: 'DEMON SLAYER', band: '#1f7a56', toy: 'tanjiro', toyName: 'Tanjiro with Water Breathing swirl',
       layout: 'trio', cast: ['sanemi', 'tanjiro', 'genya'], mech: 'brothers', magic: 'wisteria',
       peep: 'Ding-dong! Three shadows... and two of them are standing very far apart.',
@@ -450,11 +450,13 @@
     },
     fiveyen: {
       react(a) {
-        const n = st.given.yato; happy(a); hop(a);
+        const n = st.given[a.name]; happy(a); hop(a);
+        if (a.name === 'nanami') return say(`nan.${cyc(n, 3)}`);
+        if (a.name === 'tomoe') return say(`tom.${cyc(n, 3)}`);
         say(`yato.${cyc(n, 5)}`);
         if (n === 2) { const t = node(a, 'tears'); if (t) gsap.to(t, { opacity: 1, duration: .3 }); setMouth(a, 'open'); }
       },
-      ready: () => st.given.yato >= 2
+      ready: () => st.given.yato >= 2 && st.given.nanami >= 1 && st.given.tomoe >= 1
     },
     dragon: {
       accept(a, c) {
@@ -1025,7 +1027,7 @@
       bf.insertAdjacentHTML('beforeend', `<g class="pen" transform="translate(${x} ${y})"><path d="M-12 0 L12 0 L12 22 L0 30 L-12 22Z" fill="${['#ff8fbd', '#ffd25e', '#a8ecd6', '#c7a6ff', '#ff9a52'][i % 5]}" stroke="#2e2148" stroke-width="2"/><text x="0" y="17" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="13" fill="#2e2148">${ch}</text></g>`); });
     const crowd = $('#crowd'); crowd.innerHTML = '';
     [['sanemi', -6, -44, 76], ['hermione', 72, -48, 76], ['harry', 150, -44, 76], ['ron', 228, -48, 76], ['genya', 306, -44, 76],
-     ['hiccup', 30, 48, 78], ['yato', 112, 44, 78], ['tanjiro', 194, 48, 78], ['kiri', 276, 44, 78],
+     ['hiccup', -8, 48, 74], ['nanami', 58, 44, 74], ['yato', 124, 48, 74], ['tomoe', 190, 44, 74], ['tanjiro', 256, 48, 74], ['kiri', 322, 44, 74],
      ['neytiri', -12, 190, 84], ['toothless', 52, 218, 90], ['jake', 318, 168, 74], ['tuk', 258, 214, 72]].forEach(([n, x, y, w]) => {
       const el = document.createElement('div'); el.className = 'actor'; el.style.cssText = `left:${x}px;top:${y}px${w ? `;width:${w}px` : ''}`;
       el.innerHTML = ART.char(n, `pt${n}`); crowd.appendChild(el); });
@@ -1165,7 +1167,7 @@
   /* ================= preview jumps: #k1..#k5 (+ -open / -give / -card); #party #letter #invite #final ================= */
   const auto = {};
   function autoGive() {
-    const plan = { spell: [['hermione'], ['harry'], ['ron', 'frog']], fiveyen: [['yato'], ['yato']], dragon: [['toothless', 'choc'], ['toothless', 'fish'], ['hiccup', 'lolli']], glow: [['tuk'], ['jake'], ['neytiri'], ['kiri'], ['tuk']],
+    const plan = { spell: [['hermione'], ['harry'], ['ron', 'frog']], fiveyen: [['yato'], ['nanami'], ['tomoe'], ['yato']], dragon: [['toothless', 'choc'], ['toothless', 'fish'], ['hiccup', 'lolli']], glow: [['tuk'], ['jake'], ['neytiri'], ['kiri'], ['tuk']],
       brothers: [['sanemi'], ['genya'], ['tanjiro']], smash: [['bakugo'], ['deku'], ['bakugo']], serenade: [['manolo'], ['maria'], ['joaquin']], calcifer: [['calcifer'], ['howl'], ['sophie'], ['calcifer']],
       niffler: [['newt'], ['queenie'], ['jacob'], ['tina']], clover: [['asta'], ['yuno'], ['magna'], ['yami']] }[VISITORS[vi].mech];
     plan.forEach(([n, kind], i) => gsap.delayedCall(.6 + i * 1.4, () => {
