@@ -11,6 +11,8 @@ mkdir -p docs
   grep -v '^<meta charset="utf-8">$' index.html
   echo '</html>'; } > docs/index.html
 cp art.js story.js lines.js engine.js docs/
+# stamp the script links so phones never run an old saved copy
+v=$(date +%s); sed -i '' -E "s/src=\"(story|lines|art|engine)\.js\"/src=\"\1.js?v=$v\"/" docs/index.html
 rm -rf docs/voices
 for f in *.mp3 *.jpg *.jpeg *.png; do [ -e "$f" ] && cp "$f" docs/; done
 git add -A && git commit -qm "update" && git push -q && echo "pushed"
