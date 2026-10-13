@@ -107,7 +107,7 @@
     gsap.to('#hHour', { rotation: (h % 12) * 30, svgOrigin: '25 25', duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
     gsap.to('#hMin', { rotation: h * 360, svgOrigin: '25 25', duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
   }
-  const START = 7.5;  // 7:30pm; each visitor adds half an hour, so the finale lands at 11pm
+  const START = 8.5;  // 8:30pm; each visitor adds half an hour, so the finale lands at 11pm
   setClock(START, false);
 
   const out = $('#outside');
@@ -142,9 +142,9 @@
       g.insertAdjacentHTML('beforeend', `<path d="M0 0 L${Math.cos(a) * 150} ${Math.sin(a) * 150} L${Math.cos(b) * 150} ${Math.sin(b) * 150}Z"/>`); } }
   /* the display case: one slot per visitor (2 per shelf), the last one a secret */
   const slots = [];
-  for (let i = 0; i < 8; i++) {
-    const s = document.createElement('div'); s.className = 'cslot two'; s.style.top = (10 + Math.floor(i / 2) * 64) + 'px'; s.style.left = (i % 2 ? 37 : 3) + 'px';
-    s.innerHTML = `<div class="lit"></div>${i === 7 ? '<span class="q">?</span>' : ''}`;
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('div'); s.className = 'cslot two'; s.style.top = (18 + Math.floor(i / 2) * 84) + 'px'; s.style.left = (i % 2 ? 37 : 3) + 'px';
+    s.innerHTML = `<div class="lit"></div>${i === 5 ? '<span class="q">?</span>' : ''}`;
     s.addEventListener('click', () => { if (s.querySelector('.toyfig')) openAlbum(i); });
     $('#caseSlots').appendChild(s); slots.push(s);
   }
@@ -241,18 +241,6 @@
       greet: ['hic.g', ['toothless', '(happy dragon noises)']],
       cap: 'Give them candy. Toothless looks picky...',
       gift: ['hic.gift'], bye: ['hic.bye', ['toothless', '(warbles goodbye)']] },
-    { series: 'The Book of Life', world: 'muertos', box: 'THE BOOK OF LIFE', band: '#b0255f', toy: 'manolo', toyName: 'Manolo with his guitar',
-      layout: 'trio', cast: ['maria', 'manolo', 'joaquin'], mech: 'serenade', magic: 'marigolds',
-      peep: 'Ding-dong! Three shadows... one with a guitar, one with a LOT of medals.',
-      greet: ['man.g', 'mar.g', 'joa.g'],
-      cap: 'Visitors from the Land of the Remembered. Give them candy.',
-      gift: ['man.gift'], bye: ['mar.bye', 'joa.bye'] },
-    { series: "Howl's Moving Castle", world: 'castle', box: "HOWL'S MOVING CASTLE", band: '#2a4470', toy: 'calcifer', toyName: 'Calcifer the fire demon',
-      layout: 'trio', cast: ['sophie', 'calcifer', 'howl'], mech: 'calcifer', magic: 'lamp',
-      peep: 'Ding-dong! Two shadows... and something small and very, very bright.',
-      greet: ['howl.g', 'soph.g', 'calc.g'],
-      cap: 'Calcifer looks hungry. Try feeding him candy.',
-      gift: ['soph.gift'], bye: ['calc.bye', 'howl.bye'] },
     { series: 'Avatar', world: 'pandora', box: 'AVATAR', band: '#2d6fa8', toy: 'neytiri', toyName: 'Neytiri glow-in-the-dark figure',
       layout: 'quad', cast: ['jake', 'neytiri', 'kiri', 'tuk'], mech: 'glow', magic: 'pandora',
       peep: 'Ding-dong! Very tall shadows... with long braids.',
@@ -1029,9 +1017,9 @@
     [...'HAPPY BIRTHDAY'].forEach((ch, i) => { const x = 22 + i * 26.6, y = 4 + 36 * (x / 390) * (1 - x / 390) * 2; if (ch === ' ') return;
       bf.insertAdjacentHTML('beforeend', `<g class="pen" transform="translate(${x} ${y})"><path d="M-12 0 L12 0 L12 22 L0 30 L-12 22Z" fill="${['#ff8fbd', '#ffd25e', '#a8ecd6', '#c7a6ff', '#ff9a52'][i % 5]}" stroke="#2e2148" stroke-width="2"/><text x="0" y="17" text-anchor="middle" font-family="Mochiy Pop One, sans-serif" font-size="13" fill="#2e2148">${ch}</text></g>`); });
     const crowd = $('#crowd'); crowd.innerHTML = '';
-    [['sanemi', -8, -34, 66], ['genya', 46, -38, 66], ['hermione', 100, -34, 66], ['harry', 154, -38, 66], ['ron', 208, -34, 66], ['maria', 262, -38, 66], ['joaquin', 316, -34, 66],
-     ['hiccup', 19, 50, 66], ['yato', 73, 46, 66], ['manolo', 127, 50, 66], ['tanjiro', 181, 46, 66], ['howl', 235, 50, 66], ['sophie', 289, 46, 66], ['kiri', 330, 52, 66],
-     ['jake', -16, 132, 66], ['neytiri', -20, 200, 78], ['toothless', 40, 214, 84], ['tuk', 272, 212, 64], ['calcifer', 330, 214, 62]].forEach(([n, x, y, w]) => {
+    [['sanemi', -6, -44, 76], ['hermione', 72, -48, 76], ['harry', 150, -44, 76], ['ron', 228, -48, 76], ['genya', 306, -44, 76],
+     ['hiccup', 30, 48, 78], ['yato', 112, 44, 78], ['tanjiro', 194, 48, 78], ['kiri', 276, 44, 78],
+     ['neytiri', -12, 190, 84], ['toothless', 52, 218, 90], ['jake', 318, 168, 74], ['tuk', 258, 214, 72]].forEach(([n, x, y, w]) => {
       const el = document.createElement('div'); el.className = 'actor'; el.style.cssText = `left:${x}px;top:${y}px${w ? `;width:${w}px` : ''}`;
       el.innerHTML = ART.char(n, `pt${n}`); crowd.appendChild(el); });
     $$('#crowd [id$="-glow"]').forEach((g) => gsap.set(g, { opacity: .9 }));
@@ -1136,7 +1124,7 @@
   }
 
   /* ================= intro ================= */
-  $('#introCast').innerHTML = ['hermione', 'tanjiro', 'yato', 'toothless', 'howl', 'sophie', 'neytiri'].map((n) => ART.char(n, 'in' + n)).join('');
+  $('#introCast').innerHTML = ['hermione', 'tanjiro', 'yato', 'toothless', 'neytiri'].map((n) => ART.char(n, 'in' + n)).join('');
   $$('#introCast [id$="-glow"]').forEach((g) => gsap.set(g, { opacity: .8 }));
   const tt = $('#introTitle'); tt.innerHTML = [...tt.textContent].map((ch) => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   gsap.from('#introTitle span', { y: -30, opacity: 0, duration: .6, stagger: .05, ease: 'back.out(3)' });
@@ -1147,7 +1135,7 @@
     audioInit(); $('#mute').hidden = false;
     gsap.to('#intro', { opacity: 0, duration: .8, onComplete: () => { $('#intro').hidden = true; } });
     setupVisitor(0);
-    cap('7:30pm. Get comfy. Someone is coming up the walk...');
+    cap('8:30pm. Get comfy. Someone is coming up the walk...');
     gsap.delayedCall(2.4, ring);
   }
 
