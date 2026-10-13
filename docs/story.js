@@ -31,12 +31,10 @@ window.STORY = {
   letter: [
     'Hi ML,',
     'I just wanted to say thank you for being you. You make me feel safe, unjudged, and loved. I feel at home when I\'m with you.',
-    'I love how I can be myself around you without feeling judged, and I love how you truly love me for me, even the little quirky things I do.',
     '# Home',
     'I\'ve knocked on a lot of doors,\nbut none have felt like yours.\nYou welcomed every part of me,\nthe version no one else gets to see.',
     'You never make me feel too much,\nyou calm my heart with just a touch.\nI don\'t have to try or hide;\nI feel at home when you\'re beside.',
     'So here\'s the thing I want to say\non this, your very special day:\nwherever we go, whatever we roam,\nyou\'ll always be my home.',
-    'Thank you so much for being you and loving me the way you do.',
     '! Happy 24th Birthday ML \u2665'
   ],
 
