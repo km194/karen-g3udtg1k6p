@@ -248,6 +248,7 @@
       cap: 'Every candy makes them glow a little brighter.',
       gift: ['ney.gift'], bye: ['tuk.bye', 'kiri.bye'] }
   ];
+  const PAW = '<svg class="paw" viewBox="0 0 24 24" aria-hidden="true"><g fill="#2e2148"><ellipse cx="12" cy="16" rx="6" ry="5"/><ellipse cx="5" cy="9.5" rx="2.4" ry="3"/><ellipse cx="9.5" cy="5.5" rx="2.4" ry="3"/><ellipse cx="14.5" cy="5.5" rx="2.4" ry="3"/><ellipse cx="19" cy="9.5" rx="2.4" ry="3"/></g></svg>';
   const N = VISITORS.length;  // the golden secret toy is index N
   const GOLDEN = { series: 'Birthday Edition', world: 'golden', box: 'BIRTHDAY EDITION', band: '#d99a1a', toy: 'golden', toyName: 'Secret golden birthday heart' };
   const LAYOUT = {
@@ -885,7 +886,13 @@
     q('.toyHold').innerHTML = ART.toy(V.toy); q('h3').textContent = V.toyName;
     q('.numTxt').textContent = idx === N ? `Secret #${N + 1} of ${N + 1}` : `#${idx + 1} of ${N + 1} · Collect them all!`;
     q('.dots').innerHTML = [...Array(N + 1).keys()].map((i) => `<i data-i="${i}" class="${list.includes(i) ? 'on' : ''}${i === idx ? ' here' : ''}"></i>`).join('');
-    q('.note').textContent = (STORY.notes || {})[V.toy] || '';
+    { const nt = q('.note'), parts = ((STORY.notes || {})[V.toy] || '').split('{paw}'); nt.textContent = '';  // {paw} draws a little paw print
+      parts.forEach((t, i) => { if (i) nt.insertAdjacentHTML('beforeend', PAW + PAW); nt.appendChild(document.createTextNode(t)); });
+      // the "— names" signature sits on its own line
+      const sig = nt.firstChild && nt.firstChild.nodeType === 3 && nt.firstChild.textContent.lastIndexOf(' \u2014 ');
+      if (sig > 0) { const t = nt.firstChild, s = document.createElement('span'); s.className = 'sig';
+        s.textContent = t.textContent.slice(sig + 1); t.textContent = t.textContent.slice(0, sig);
+        while (t.nextSibling) s.appendChild(t.nextSibling); nt.appendChild(s); } }
     q('.swipeHint').hidden = list.length < 2;
     if (root.id === 'card') $('#keep').textContent = idx === boxing.idx ? 'Add to my collection' : 'Back to my new toy';
   }

@@ -18,12 +18,12 @@ window.STORY = {
   // One sweet note per toy. Each one shows up on that toy's collector card.
   // These are drafts: make them yours.
   notes: {
-    harry:     'The Sorting Hat didn\'t even have to think. Smartest girl I know, and you never show off about it.',
-    yato:      'Yato will grant any wish for five yen. I didn\'t need him. I already got mine when I met you.',
-    tanjiro:   'Tanjiro can smell kindness from a mile away. He\'d find you in a second.',
-    toothless: 'Toothless only lets a few people get close. I get it now. You\'re one of mine.',
-    neytiri:   'On Pandora, "I see you" means "I understand you." I see you, Karen. All of you.',
-    golden:    'The rarest one in the set. Only one exists, just like you. Happy birthday.'
+    harry:     'Happy birthday from Gryffindor to our favorite Ravenclaw! Ron ate half your candy. Sorry. — Harry, Ron & Hermione',
+    yato:      'Happy birthday, Karen! I put your name on my shrine. It\'s a very small shrine. It\'s a bottle cap. But it\'s yours. — Yato',
+    tanjiro:   'Happy birthday, Karen! You got two brothers to stand side by side. That\'s real magic. You smell like kindness, by the way. — Tanjiro, Genya & (grumpily) Sanemi',
+    toothless: 'Happy birthday, Karen! Toothless wanted to bring you a fish. I talked him out of it. You\'re welcome. — Hiccup & Toothless {paw}',
+    neytiri:   'Happy birthday, Karen! The whole forest glowed for you tonight. That doesn\'t happen for just anyone. — Jake, Neytiri, Kiri & Tuk',
+    golden:    'The rarest one in the set. Only one exists, just like you. — Kevin ♥'
   },
 
   // Your letter. Each line in quotes is one paragraph.
